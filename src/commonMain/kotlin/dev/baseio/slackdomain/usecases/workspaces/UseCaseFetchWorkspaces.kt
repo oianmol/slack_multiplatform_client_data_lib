@@ -9,22 +9,22 @@ import dev.baseio.slackdomain.model.workspaces.DomainLayerWorkspaces
 import kotlinx.coroutines.flow.*
 
 class UseCaseFetchWorkspaces(
-  private val skNetworkDataSourceReadWorkspaces: SKNetworkDataSourceReadWorkspaces,
-  private val skLocalDataSourceWriteWorkspaces: SKLocalDataSourceWriteWorkspaces,
-  private val skLocalDataSourceReadWorkspaces: SKLocalDataSourceReadWorkspaces
+    private val skNetworkDataSourceReadWorkspaces: SKNetworkDataSourceReadWorkspaces,
+    private val skLocalDataSourceWriteWorkspaces: SKLocalDataSourceWriteWorkspaces,
+    private val skLocalDataSourceReadWorkspaces: SKLocalDataSourceReadWorkspaces
 ) {
-  operator fun invoke(): Flow<List<DomainLayerWorkspaces.SKWorkspace>> {
-    return skNetworkDataSourceReadWorkspaces.getWorkspaces().catch {
-      emitAll(emptyFlow())
-    }.flatMapLatest { kmSKWorkspaces ->
-      skLocalDataSourceWriteWorkspaces.saveWorkspaces(kmSKWorkspaces.workspacesList.map {
-        it.toSKWorkspace()
-      })
-      skLocalDataSourceReadWorkspaces.fetchWorkspaces()
+    operator fun invoke(): Flow<List<DomainLayerWorkspaces.SKWorkspace>> {
+        return skNetworkDataSourceReadWorkspaces.getWorkspaces().flatMapLatest { kmSKWorkspaces ->
+            skLocalDataSourceWriteWorkspaces.saveWorkspaces(kmSKWorkspaces.workspacesList.map {
+                it.toSKWorkspace()
+            })
+            skLocalDataSourceReadWorkspaces.fetchWorkspaces()
+        }.catch {
+            skLocalDataSourceReadWorkspaces.fetchWorkspaces()
+        }
     }
-  }
 }
 
 fun KMSKWorkspace.toSKWorkspace(): DomainLayerWorkspaces.SKWorkspace {
-  return DomainLayerWorkspaces.SKWorkspace(this.uuid, this.name, this.domain, this.picUrl, this.lastSelected)
+    return DomainLayerWorkspaces.SKWorkspace(this.uuid, this.name, this.domain, this.picUrl, this.lastSelected)
 }

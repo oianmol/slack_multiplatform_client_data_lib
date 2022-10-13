@@ -10,10 +10,7 @@ import dev.baseio.slackdata.mapper.EntityMapper
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdomain.datasources.local.workspaces.SKLocalDataSourceReadWorkspaces
 import dev.baseio.slackdomain.model.workspaces.DomainLayerWorkspaces
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
 class SKLocalDataSourceReadWorkspacesImpl(
@@ -24,11 +21,14 @@ class SKLocalDataSourceReadWorkspacesImpl(
 
     override suspend fun setLastSelected(skWorkspace: DomainLayerWorkspaces.SKWorkspace) {
         withContext(coroutineDispatcherProvider.io) {
-            val oldSelected = slackDB.slackDBQueries.lastSelected().executeAsOneOrNull()
-            slackDB.slackDBQueries.setLastSelected(skWorkspace.uuid)
-            oldSelected?.let {
-                slackDB.slackDBQueries.markNotSelected(it.uid)
+            slackDB.slackDBQueries.transaction {
+                val oldSelected = slackDB.slackDBQueries.lastSelected().executeAsOneOrNull()
+                slackDB.slackDBQueries.setLastSelected(skWorkspace.uuid)
+                oldSelected?.let {
+                    slackDB.slackDBQueries.markNotSelected(it.uid)
+                }
             }
+
         }
     }
 
@@ -37,7 +37,7 @@ class SKLocalDataSourceReadWorkspacesImpl(
             slackDB.slackDBQueries.lastSelected().executeAsOneOrNull()?.let { slackWorkspace ->
                 entityMapper.mapToDomain(slackWorkspace)
             } ?: run {
-                slackDB.slackDBQueries.selectAllWorkspaces().executeAsOneOrNull()?.let { slackWorkspace ->
+                slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()?.let { slackWorkspace ->
                     entityMapper.mapToDomain(slackWorkspace)
                 }
             }
@@ -49,7 +49,11 @@ class SKLocalDataSourceReadWorkspacesImpl(
             .asFlow()
             .mapToOneOrNull()
             .mapNotNull {
-                slackDB.slackDBQueries.selectAllWorkspaces().executeAsOneOrNull()
+                it?.let {
+                    it
+                } ?: run {
+                    slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()
+                }
             }
             .mapNotNull {
                 entityMapper.mapToDomain(it)

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExtension.OutputTarget
 
 
@@ -32,7 +30,7 @@ object Versions {
 object Deps {
 
     object Kotlinx {
-        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+        const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
         const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 
         object JVM {
@@ -99,7 +97,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
                 implementation(Deps.Kotlinx.datetime)
                 implementation(Deps.SqlDelight.core)
-                implementation(Deps.Kotlinx.coroutines)
+                implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.Koin.core)
                 implementation(kotlin("stdlib-common"))
                 api("io.github.timortel:grpc-multiplatform-lib:0.2.2")
@@ -126,21 +124,14 @@ kotlin {
             )
             dependencies {
                 implementation(Deps.Koin.android)
-                implementation(project(":generate-proto"))
-                implementation(Deps.Kotlinx.coroutines)
+                implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation(Deps.AndroidX.lifecycleViewModelKtx)
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
+                api(project(":generate-proto"))
                 api("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
-                implementation("com.google.accompanist:accompanist-systemuicontroller:0.26.3-beta")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-                implementation("com.squareup.sqldelight:android-driver:1.5.3")
-                implementation("io.coil-kt:coil-compose:2.2.0")
                 implementation("io.ktor:ktor-client-android:$ktor_version")
-                api("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-                api("androidx.appcompat:appcompat:1.5.1")
-                api("androidx.core:core-ktx:1.9.0")
             }
         }
         val iosArm64Main by getting {
@@ -179,7 +170,7 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Deps.Kotlinx.coroutines)
+                implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
                 api(project(":generate-proto"))
@@ -208,6 +199,10 @@ grpcKotlinMultiplatform {
     )
     //Specify the folders where your proto files are located, you can list multiple.
     protoSourceFolders.set(listOf(projectDir.resolve("../protos/src/main/proto")))
+}
+
+dependencies {
+    commonMainApi("io.github.timortel:grpc-multiplatform-lib:0.2.2")
 }
 
 kotlin {

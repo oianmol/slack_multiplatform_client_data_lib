@@ -2,13 +2,13 @@ import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExte
 
 
 plugins {
-    kotlin("multiplatform") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("com.android.library")
-    id("com.google.protobuf") version "0.8.19"
-    id("com.squareup.sqldelight") version "1.5.3"
+    id("com.google.protobuf")
+    id("com.squareup.sqldelight")
     id("maven-publish")
-    id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
+    id("io.github.timortel.kotlin-multiplatform-grpc-plugin")
 }
 
 group = "dev.baseio.slackdatalib"
@@ -100,7 +100,7 @@ kotlin {
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.Koin.core)
                 implementation(kotlin("stdlib-common"))
-                api("io.github.timortel:grpc-multiplatform-lib:0.2.2")
+                implementation("io.github.timortel:grpc-multiplatform-lib:0.2.2")
             }
             kotlin.srcDirs(
                 projectDir.resolve("build/generated/source/kmp-grpc/commonMain/kotlin").canonicalPath,
@@ -128,13 +128,16 @@ kotlin {
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation(Deps.AndroidX.lifecycleViewModelKtx)
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
-                api(project(":generate-proto"))
+                implementation(project(":generate-proto"))
                 api("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
         val iosArm64Main by getting {
+            kotlin.srcDirs(
+                projectDir.resolve("build/generated/source/kmp-grpc/iosArm64Main/kotlin").canonicalPath,
+            )
             dependsOn(sqlDriverNativeMain)
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
@@ -142,6 +145,9 @@ kotlin {
             }
         }
         val iosSimulatorArm64Main by getting {
+            kotlin.srcDirs(
+                projectDir.resolve("build/generated/source/kmp-grpc/iosSimulatorArm64Main/kotlin").canonicalPath,
+            )
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
@@ -150,6 +156,9 @@ kotlin {
             }
         }
         val iosX64Main by getting {
+            kotlin.srcDirs(
+                projectDir.resolve("build/generated/source/kmp-grpc/iosX64Main/kotlin").canonicalPath,
+            )
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
@@ -173,7 +182,7 @@ kotlin {
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
-                api(project(":generate-proto"))
+                implementation(project(":generate-proto"))
                 api("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
@@ -198,7 +207,7 @@ grpcKotlinMultiplatform {
         )
     )
     //Specify the folders where your proto files are located, you can list multiple.
-    protoSourceFolders.set(listOf(projectDir.resolve("../protos/src/main/proto")))
+    protoSourceFolders.set(listOf(projectDir.resolve("/protos/src/main/proto")))
 }
 
 dependencies {

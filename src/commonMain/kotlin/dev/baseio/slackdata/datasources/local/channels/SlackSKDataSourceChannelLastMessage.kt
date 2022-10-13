@@ -28,7 +28,7 @@ class SlackSKDataSourceChannelLastMessage constructor(
     return chatPager.map {
       it.map { channelsWithLastMessage ->
         val channel =
-          slackChannelDao.slackDBQueries.selectChannelById(workspaceId, channelsWithLastMessage.channelId!!)
+          slackChannelDao.slackDBQueries.selectChannelById(workspaceId, channelsWithLastMessage.channelId)
             .executeAsOne()
         val message =
           SlackMessage(

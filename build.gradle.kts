@@ -9,6 +9,7 @@ plugins {
     id("com.android.library")
     id("com.google.protobuf") version "0.8.19"
     id("com.squareup.sqldelight") version "1.5.3"
+    id("maven-publish")
     id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
 }
 

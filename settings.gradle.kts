@@ -6,6 +6,9 @@ pluginManagement {
         mavenCentral()
         mavenLocal()
     }
+    plugins {
+        kotlin("jvm") version "1.7.20"
+    }
     resolutionStrategy {
         eachPlugin {
             if (requested.id.namespace == "com.android" || requested.id.name == "kotlin-android-extensions") {
@@ -15,9 +18,6 @@ pluginManagement {
     }
 }
 
-
-include(":generate-proto")
-include(":protos")
 
 rootProject.name = "slack_multiplatform_client_data_lib"
 

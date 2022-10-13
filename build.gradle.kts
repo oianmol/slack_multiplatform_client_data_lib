@@ -2,13 +2,13 @@ import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExte
 
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
+    kotlin("multiplatform") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
     id("com.android.library")
-    id("com.google.protobuf")
-    id("com.squareup.sqldelight")
+    id("com.google.protobuf") version "0.8.19"
+    id("com.squareup.sqldelight") version "1.5.3"
     id("maven-publish")
-    id("io.github.timortel.kotlin-multiplatform-grpc-plugin")
+    id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
 }
 
 group = "dev.baseio.slackdatalib"
@@ -129,7 +129,7 @@ kotlin {
                 implementation(Deps.AndroidX.lifecycleViewModelKtx)
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
                 implementation(project(":generate-proto"))
-                api("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
+                implementation("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
@@ -183,7 +183,7 @@ kotlin {
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
                 implementation(project(":generate-proto"))
-                api("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
+                implementation("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
                 implementation(Deps.Koin.core_jvm)

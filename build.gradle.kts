@@ -207,7 +207,7 @@ grpcKotlinMultiplatform {
         )
     )
     //Specify the folders where your proto files are located, you can list multiple.
-    protoSourceFolders.set(listOf(projectDir.resolve("/protos/src/main/proto")))
+    protoSourceFolders.set(listOf(projectDir.resolve("protos/src/main/proto")))
 }
 
 dependencies {

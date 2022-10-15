@@ -2,7 +2,7 @@ package dev.baseio.slackdata.injection
 
 import dev.baseio.slackdata.datasources.local.channels.SKLocalDataSourceReadChannelsImpl
 import dev.baseio.slackdata.datasources.local.channels.SKLocalDataSourceCreateChannelsImpl
-import dev.baseio.slackdata.datasources.local.channels.SlackSKDataSourceChannelLastMessage
+import dev.baseio.slackdata.datasources.local.channels.SlackSKLocalDataSourceChannelLastMessage
 import dev.baseio.slackdata.datasources.local.messages.SlackSKLocalDataSourceMessagesImpl
 import dev.baseio.slackdata.datasources.local.users.SKDataSourceCreateUsersImpl
 import dev.baseio.slackdata.datasources.local.users.SKLocalDataSourceUsersImpl
@@ -15,7 +15,7 @@ import dev.baseio.slackdata.datasources.remote.messages.SKNetworkDataSourceMessa
 import dev.baseio.slackdata.datasources.remote.users.SKNetworkDataSourceReadUsersImpl
 import dev.baseio.slackdata.datasources.remote.workspaces.SKNetworkDataSourceReadWorkspacesImpl
 import dev.baseio.slackdata.datasources.remote.workspaces.SKNetworkDataSourceWriteWorkspacesImpl
-import dev.baseio.slackdomain.datasources.local.channels.SKDataSourceChannelLastMessage
+import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelLastMessage
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceReadChannels
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceCreateChannels
 import dev.baseio.slackdomain.datasources.local.messages.SKLocalDataSourceMessages
@@ -79,13 +79,12 @@ val dataSourceModule = module {
       get()
     )
   }
-  single<SKDataSourceChannelLastMessage> {
-    SlackSKDataSourceChannelLastMessage(
-      get(),
-      get(SlackMessageMessageQualifier),
-      get(SlackChannelChannelQualifier),
-      get(),
-      get()
+  single<SKLocalDataSourceChannelLastMessage> {
+    SlackSKLocalDataSourceChannelLastMessage(
+        get(),
+        get(SlackMessageMessageQualifier),
+        get(SlackChannelChannelQualifier),
+        get()
     )
   }
 }

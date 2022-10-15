@@ -9,18 +9,16 @@ import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
-import dev.baseio.slackdomain.datasources.local.channels.SKDataSourceChannelLastMessage
-import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
+import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelLastMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SlackSKDataSourceChannelLastMessage constructor(
+class SlackSKLocalDataSourceChannelLastMessage(
   private val slackChannelDao: SlackDB,
   private val messagesMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
   private val SKChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SlackChannel>,
-  private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider
-) : SKDataSourceChannelLastMessage {
+) : SKLocalDataSourceChannelLastMessage {
   override fun fetchChannelsWithLastMessage(workspaceId: String): Flow<List<DomainLayerMessages.SKLastMessage>> {
     val chatPager = slackChannelDao.slackDBQueries.selectLastMessageOfChannels(workspaceId)
       .asFlow()

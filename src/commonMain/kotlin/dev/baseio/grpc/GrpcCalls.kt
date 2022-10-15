@@ -94,9 +94,18 @@ class GrpcCalls(
         return workspacesStub.saveWorkspace(workspace, fetchToken(token))
     }
 
-    suspend fun getChannels(workspaceIdentifier: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKChannels {
+    suspend fun getChannels(
+        workspaceIdentifier: String,
+        offset: Int,
+        limit: Int,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKChannels {
         return channelsStub.getChannels(kmSKChannelRequest {
             workspaceId = workspaceIdentifier
+            this.paged = kmSKPagedRequest {
+                this.offset = offset
+                this.limit = limit
+            }
         }, fetchToken(token))
     }
 

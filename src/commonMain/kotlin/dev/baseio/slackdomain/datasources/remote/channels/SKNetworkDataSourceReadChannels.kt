@@ -4,5 +4,5 @@ import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import kotlinx.coroutines.flow.Flow
 
 interface SKNetworkDataSourceReadChannels {
-  suspend fun fetchChannels(workspaceId: String): List<DomainLayerChannels.SKChannel>
+    suspend fun fetchChannels(workspaceId: String, offset: Int, limit: Int): List<DomainLayerChannels.SKChannel>
 }

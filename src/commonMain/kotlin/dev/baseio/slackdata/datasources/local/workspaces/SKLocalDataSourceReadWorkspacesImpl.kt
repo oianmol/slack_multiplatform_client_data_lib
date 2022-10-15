@@ -34,19 +34,29 @@ class SKLocalDataSourceReadWorkspacesImpl(
 
     override suspend fun lastSelectedWorkspace(): DomainLayerWorkspaces.SKWorkspace? {
         return withContext(coroutineDispatcherProvider.io) {
-            slackDB.slackDBQueries.lastSelected().executeAsOneOrNull()?.let { slackWorkspace ->
-                entityMapper.mapToDomain(slackWorkspace)
-            } ?: run {
+            kotlin.runCatching {
+                slackDB.slackDBQueries.lastSelected().executeAsOneOrNull()?.let { slackWorkspace ->
+                    entityMapper.mapToDomain(slackWorkspace)
+                } ?: run {
+                    // TODO this should not happen ?
+                    slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()?.let { slackWorkspace ->
+                        entityMapper.mapToDomain(slackWorkspace)
+                    }
+                }
+            }.mapCatching {
                 slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()?.let { slackWorkspace ->
                     entityMapper.mapToDomain(slackWorkspace)
                 }
-            }
+            }.getOrNull()
         }
     }
 
     override fun lastSelectedWorkspaceAsFlow(): Flow<DomainLayerWorkspaces.SKWorkspace> {
         return slackDB.slackDBQueries.lastSelected()
             .asFlow()
+            .catch {
+                slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()
+            }
             .mapToOneOrNull()
             .mapNotNull {
                 it?.let {

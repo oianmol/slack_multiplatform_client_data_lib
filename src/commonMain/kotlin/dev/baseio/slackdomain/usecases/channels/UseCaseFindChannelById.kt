@@ -15,7 +15,7 @@ class UseCaseFindChannelById(
     private val skKeyValueData: SKKeyValueData,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) {
-  suspend fun findById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
+  suspend operator fun invoke(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
     return withContext(coroutineDispatcherProvider.io) {
       //TODO check network source for channel by id also!
       val firstUserChannelById = sdkDataSource.getChannelById(workspaceId, uuid)

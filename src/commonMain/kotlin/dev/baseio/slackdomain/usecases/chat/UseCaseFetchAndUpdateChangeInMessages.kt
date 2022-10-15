@@ -13,16 +13,15 @@ class UseCaseFetchAndUpdateChangeInMessages(
     private val SKLocalDataSourceMessages: SKLocalDataSourceMessages,
     private val skNetworkDataSourceMessages: SKNetworkDataSourceMessages,
     private val skLocalDataSourceUsers: SKLocalDataSourceUsers
-) :
-    BaseUseCase<List<DomainLayerMessages.SKMessage>, UseCaseChannelRequest> {
-    override fun performStreaming(request: UseCaseChannelRequest): Flow<Unit> {
+){
+    operator fun invoke(request: UseCaseChannelRequest): Flow<Unit> {
         return skNetworkDataSourceMessages.registerChangeInMessages(request)
             .map { messageChangeSnapshot ->
-                messageChangeSnapshot.first.let {
+                messageChangeSnapshot.first?.let {
                     skLocalDataSourceUsers.saveUser(it.senderInfo) // TODO remove senderInfo from model once we have users stream finalized
                     SKLocalDataSourceMessages.saveMessage(it)
                 }
-                messageChangeSnapshot.second.let {
+                messageChangeSnapshot.second?.let {
                     skLocalDataSourceUsers.saveUser(it.senderInfo)
                     SKLocalDataSourceMessages.saveMessage(it)
                 }

@@ -73,7 +73,8 @@ SELECT * FROM slackMessage
             WHERE workspaceId =:workspaceId GROUP BY channelId)
             AS channelMessage_last
             ON channelMessage_last.channelId = channelMessage.channelId
-            AND channelMessage_last.received_at = channelMessage.modifiedDate;
+            AND channelMessage_last.received_at = channelMessage.modifiedDate
+            ORDER BY channelMessage_last.received_at DESC;
 
 deleteAllChannels:
 DELETE FROM slackChannel WHERE workspaceId=:workspaceid;

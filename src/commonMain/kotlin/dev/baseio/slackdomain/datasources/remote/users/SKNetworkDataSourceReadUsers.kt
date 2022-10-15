@@ -4,5 +4,5 @@ import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.flow.Flow
 
 interface SKNetworkDataSourceReadUsers {
-  suspend fun fetchUsers(workspaceId: String): List<DomainLayerUsers.SKUser>
+  suspend fun fetchUsers(workspaceId: String): Result<List<DomainLayerUsers.SKUser>>
 }

@@ -4,7 +4,6 @@ package dev.baseio.grpc
 import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdata.protos.*
 import dev.baseio.slackdomain.AUTH_TOKEN
-import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.usecases.channels.UseCaseChannelRequest
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMChannel
 import kotlinx.coroutines.flow.Flow
@@ -54,6 +53,7 @@ class GrpcCalls(
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser {
         return usersStub.currentLoggedInUser(kmEmpty { }, fetchToken(token))
     }
+
 
     suspend fun register(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKAuthResult {
         return authStub.register(kmskAuthUser, fetchToken(token))
@@ -113,11 +113,41 @@ class GrpcCalls(
         return channelsStub.saveChannel(kmChannel, fetchToken(token))
     }
 
-    fun listenMessages(
-        workspaceChannelRequest: KMSKWorkspaceChannelRequest,
+    fun listenToChangeInMessages(
+        workspaceChannelRequest: UseCaseChannelRequest,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
     ): Flow<KMSKMessageChangeSnapshot> {
-        return messagingStub.registerChangeInMessage(workspaceChannelRequest, fetchToken(token))
+        return messagingStub.registerChangeInMessage(kmSKWorkspaceChannelRequest {
+            workspaceId = workspaceChannelRequest.workspaceId
+            channelId = workspaceChannelRequest.uuid
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInUsers(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKUserChangeSnapshot> {
+        return usersStub.registerChangeInUsers(kmSKWorkspaceChannelRequest {
+            this.workspaceId = workspaceId
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInChannels(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKChannelChangeSnapshot> {
+        return channelsStub.registerChangeInChannel(kmSKChannelRequest {
+            this.workspaceId = workspaceId
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInWorkspace(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKWorkspaceChangeSnapshot> {
+        return workspacesStub.registerChangeInWorkspace(kmSKWorkspace {
+            this.uuid = workspaceId
+        }, fetchToken(token))
     }
 
     suspend fun fetchMessages(request: UseCaseChannelRequest): KMSKMessages {
@@ -136,7 +166,7 @@ class GrpcCalls(
     }
 
 
-    fun fetchToken(token: String?): KMMetadata {
+    private fun fetchToken(token: String?): KMMetadata {
         return KMMetadata().apply {
             if (token != null) {
                 set(AUTHENTICATION_TOKEN_KEY, "Bearer $token")

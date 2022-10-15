@@ -2,18 +2,15 @@ CREATE TABLE IF NOT EXISTS slackWorkspaces(uid TEXT NOT NULL PRIMARY KEY,
                                                name TEXT NOT NULL ,
                                                domain TEXT NOT NULL,
                                                picUrl TEXT DEFAULT NULL,
-                                               lastSelected INTEGER DEFAULT 0);
+                                               modifiedTime INTEGER DEFAULT 0);
 lastSelected:
-SELECT * FROM slackWorkspaces WHERE lastSelected == 1;
+SELECT * FROM slackWorkspaces WHERE modifiedTime =  ( SELECT MAX(modifiedTime) FROM slackWorkspaces );
 
-markNotSelected:
-UPDATE slackWorkspaces SET lastSelected = 0 WHERE uid=:param;
-
-setLastSelected:
-UPDATE slackWorkspaces SET lastSelected = 1 WHERE uid = :param;
+workspaceUpdateTime:
+UPDATE slackWorkspaces SET modifiedTime=:time WHERE uid=:workspaceId;
 
 insertWorkspace:
-INSERT OR REPLACE INTO slackWorkspaces(uid,name,domain,picUrl,lastSelected) VALUES (?,?,?,?,?);
+INSERT OR REPLACE INTO slackWorkspaces(uid,name,domain,picUrl,modifiedTime) VALUES (?,?,?,?,?);
 
 countWorkspaces:
 SELECT COUNT(*) FROM slackWorkspaces;
@@ -22,7 +19,7 @@ selectWorkspaces:
 SELECT * FROM slackWorkspaces WHERE name LIKE '%' || :params || '%' OR domain LIKE '%' || :params || '%' ORDER BY name ASC;
 
 selectAllWorkspaces:
-SELECT * FROM slackWorkspaces ORDER BY name ASC;
+SELECT * FROM slackWorkspaces ORDER BY modifiedTime DESC;
 
 selectWorkspaceById:
 SELECT * FROM slackWorkspaces WHERE uid = :workSpaceId;

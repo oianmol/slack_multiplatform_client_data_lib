@@ -6,9 +6,9 @@ import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import kotlinx.coroutines.flow.*
 
 class SKNetworkDataSourceReadChannelsImpl(private val grpcCalls: GrpcCalls) : SKNetworkDataSourceReadChannels {
-  override fun fetchChannels(workspaceId: String): Flow<List<DomainLayerChannels.SKChannel>> {
-    return grpcCalls.getChannels(workspaceId).map { channels->
-      channels.channelsList.map {
+  override suspend fun fetchChannels(workspaceId: String): List<DomainLayerChannels.SKChannel> {
+    return grpcCalls.getChannels(workspaceId).run {
+      this.channelsList.map {
         it.mapToDomainSkChannel()
       }
     }

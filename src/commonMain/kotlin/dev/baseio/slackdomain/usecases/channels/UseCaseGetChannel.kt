@@ -16,4 +16,4 @@ class UseCaseGetChannel(private val skLocalDataSourceReadChannels: SKLocalDataSo
     }
 }
 
-data class UseCaseChannelRequest(val workspaceId: String, val uuid: String, val limit: Int, val offset: Int)
+data class UseCaseChannelRequest(val workspaceId: String, val uuid: String, val limit: Int = 20, val offset: Int = 0)

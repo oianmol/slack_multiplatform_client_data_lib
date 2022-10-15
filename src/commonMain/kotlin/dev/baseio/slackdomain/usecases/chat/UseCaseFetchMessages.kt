@@ -27,7 +27,7 @@ class UseCaseFetchMessages(
             }.run {
                 this.getOrNull()
                     ?: emptyList() // this usecase fetches from network and returns the messages to the consumer after saving
-                //TODO inform subscriber for incoming exceptions for a fallback! Should we create Repositories ?
+                //TODO inform subscriber for incoming exceptions for a fallback!
             }
         }
     }

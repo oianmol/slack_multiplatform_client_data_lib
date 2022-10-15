@@ -18,7 +18,8 @@ class SKLocalDataSourceWriteWorkspacesImpl(
             skWorkspace.uuid,
             skWorkspace.name,
             skWorkspace.domain,
-            skWorkspace.picUrl, if (skWorkspace.lastSelected) 1 else 0
+            skWorkspace.picUrl,
+            skWorkspace.modifiedTime
           )
         }
       }

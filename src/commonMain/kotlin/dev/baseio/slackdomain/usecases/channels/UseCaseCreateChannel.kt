@@ -6,12 +6,13 @@ import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkDataSourceWri
 import dev.baseio.slackdomain.usecases.BaseUseCase
 
 class UseCaseCreateChannel(
-  private val SKLocalDataSourceCreateChannels: SKLocalDataSourceCreateChannels,
-  private val skNetworkDataSourceWriteChannels: SKNetworkDataSourceWriteChannels
-) :
-  BaseUseCase<DomainLayerChannels.SKChannel, DomainLayerChannels.SKChannel> {
-  override suspend fun perform(params: DomainLayerChannels.SKChannel): DomainLayerChannels.SKChannel {
-    val channel = skNetworkDataSourceWriteChannels.createChannel(params)
-    return SKLocalDataSourceCreateChannels.saveChannel(channel)
-  }
+    private val SKLocalDataSourceCreateChannels: SKLocalDataSourceCreateChannels,
+    private val skNetworkDataSourceWriteChannels: SKNetworkDataSourceWriteChannels
+) {
+    suspend operator fun invoke(params: DomainLayerChannels.SKChannel): Result<DomainLayerChannels.SKChannel> {
+        return kotlin.runCatching {
+            val channel = skNetworkDataSourceWriteChannels.createChannel(params).getOrThrow()
+            SKLocalDataSourceCreateChannels.saveChannel(channel)
+        }
+    }
 }

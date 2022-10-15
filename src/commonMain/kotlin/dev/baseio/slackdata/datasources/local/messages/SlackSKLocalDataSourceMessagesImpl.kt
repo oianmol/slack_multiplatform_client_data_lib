@@ -16,7 +16,7 @@ class SlackSKLocalDataSourceMessagesImpl constructor(
   private val entityMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
   private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider
 ) : SKLocalDataSourceMessages {
-  override fun fetchLocalMessages(workspaceId: String, userId: String): Flow<List<DomainLayerMessages.SKMessage>> {
+  override fun streamLocalMessages(workspaceId: String, userId: String): Flow<List<DomainLayerMessages.SKMessage>> {
     return slackMessageDao.slackDBQueries.selectAllMessagesByUserId(workspaceId, userId)
       .asFlow()
       .flowOn(coroutineMainDispatcherProvider.io)

@@ -5,6 +5,7 @@ import dev.baseio.slackdomain.usecases.channels.UseCaseChannelRequest
 import kotlinx.coroutines.flow.Flow
 
 interface SKNetworkDataSourceMessages {
-  suspend fun sendMessage(params: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage
-  fun getMessages(request: UseCaseChannelRequest): Flow<List<DomainLayerMessages.SKMessage>>
+    suspend fun sendMessage(params: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage
+    suspend fun fetchMessages(request: UseCaseChannelRequest): Result<List<DomainLayerMessages.SKMessage>>
+    fun registerChangeInMessages(request: UseCaseChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>>
 }

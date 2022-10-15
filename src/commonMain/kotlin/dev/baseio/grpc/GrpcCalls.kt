@@ -4,6 +4,7 @@ package dev.baseio.grpc
 import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdata.protos.*
 import dev.baseio.slackdomain.AUTH_TOKEN
+import dev.baseio.slackdomain.usecases.channels.UseCaseChannelRequest
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMChannel
 import kotlinx.coroutines.flow.Flow
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMMetadata
@@ -45,13 +46,14 @@ class GrpcCalls(
         KMMessagesServiceStub(grpcChannel)
     }
 
-    fun streamUsersForWorkspaceId(workspace: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): Flow<KMSKUsers> {
+    suspend fun getUsersForWorkspaceId(workspace: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUsers {
         return usersStub.getUsers(kmSKWorkspaceChannelRequest { workspaceId = workspace }, fetchToken(token))
     }
 
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser {
         return usersStub.currentLoggedInUser(kmEmpty { }, fetchToken(token))
     }
+
 
     suspend fun register(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKAuthResult {
         return authStub.register(kmskAuthUser, fetchToken(token))
@@ -81,7 +83,7 @@ class GrpcCalls(
         return authStub.login(kmskAuthUser, fetchToken(token))
     }
 
-    fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): Flow<KMSKWorkspaces> {
+    suspend fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces {
         return workspacesStub.getWorkspaces(kmEmpty { }, fetchToken(token))
     }
 
@@ -92,9 +94,18 @@ class GrpcCalls(
         return workspacesStub.saveWorkspace(workspace, fetchToken(token))
     }
 
-    fun getChannels(workspaceIdentifier: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): Flow<KMSKChannels> {
+    suspend fun getChannels(
+        workspaceIdentifier: String,
+        offset: Int,
+        limit: Int,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKChannels {
         return channelsStub.getChannels(kmSKChannelRequest {
             workspaceId = workspaceIdentifier
+            this.paged = kmSKPagedRequest {
+                this.offset = offset
+                this.limit = limit
+            }
         }, fetchToken(token))
     }
 
@@ -102,11 +113,52 @@ class GrpcCalls(
         return channelsStub.saveChannel(kmChannel, fetchToken(token))
     }
 
-    fun listenMessages(
-        workspaceChannelRequest: KMSKWorkspaceChannelRequest,
+    fun listenToChangeInMessages(
+        workspaceChannelRequest: UseCaseChannelRequest,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
-    ): Flow<KMSKMessages> {
-        return messagingStub.getMessages(workspaceChannelRequest, fetchToken(token))
+    ): Flow<KMSKMessageChangeSnapshot> {
+        return messagingStub.registerChangeInMessage(kmSKWorkspaceChannelRequest {
+            workspaceId = workspaceChannelRequest.workspaceId
+            channelId = workspaceChannelRequest.uuid
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInUsers(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKUserChangeSnapshot> {
+        return usersStub.registerChangeInUsers(kmSKWorkspaceChannelRequest {
+            this.workspaceId = workspaceId
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInChannels(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKChannelChangeSnapshot> {
+        return channelsStub.registerChangeInChannel(kmSKChannelRequest {
+            this.workspaceId = workspaceId
+        }, fetchToken(token))
+    }
+
+    fun listenToChangeInWorkspace(
+        workspaceId: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): Flow<KMSKWorkspaceChangeSnapshot> {
+        return workspacesStub.registerChangeInWorkspace(kmSKWorkspace {
+            this.uuid = workspaceId
+        }, fetchToken(token))
+    }
+
+    suspend fun fetchMessages(request: UseCaseChannelRequest): KMSKMessages {
+        return messagingStub.getMessages(kmSKWorkspaceChannelRequest {
+            this.workspaceId = request.workspaceId
+            this.channelId = request.uuid
+            this.paged = kmSKPagedRequest {
+                this.limit = request.limit
+                this.offset = request.offset
+            }
+        })
     }
 
     suspend fun sendMessage(kmskMessage: KMSKMessage, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKMessage {
@@ -114,7 +166,7 @@ class GrpcCalls(
     }
 
 
-    fun fetchToken(token: String?): KMMetadata {
+    private fun fetchToken(token: String?): KMMetadata {
         return KMMetadata().apply {
             if (token != null) {
                 set(AUTHENTICATION_TOKEN_KEY, "Bearer $token")
@@ -125,5 +177,7 @@ class GrpcCalls(
     fun clearAuth() {
         skKeyValueData.clear()
     }
+
+
 }
 

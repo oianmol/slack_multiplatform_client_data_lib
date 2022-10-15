@@ -17,7 +17,7 @@ class SKNetworkDataSourceReadWorkspacesImpl(private val grpcCalls: GrpcCalls) : 
     return grpcCalls.findWorkspaceByName(name)
   }
 
-  override fun getWorkspaces(): Flow<KMSKWorkspaces> {
+  override suspend fun getWorkspaces(): KMSKWorkspaces {
     return grpcCalls.getWorkspaces()
   }
 }

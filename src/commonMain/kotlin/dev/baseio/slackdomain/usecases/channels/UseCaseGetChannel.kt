@@ -5,15 +5,15 @@ import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.usecases.BaseUseCase
 
 class UseCaseGetChannel(private val skLocalDataSourceReadChannels: SKLocalDataSourceReadChannels) :
-  BaseUseCase<DomainLayerChannels.SKChannel, UseCaseChannelRequest> {
-  override suspend fun perform(params: UseCaseChannelRequest): DomainLayerChannels.SKChannel? {
-    return skLocalDataSourceReadChannels.getChannel(
-      UseCaseChannelRequest(
-        workspaceId = params.workspaceId,
-        uuid = params.uuid
-      )
-    )
-  }
+    BaseUseCase<DomainLayerChannels.SKChannel, UseCaseChannelRequest> {
+    override suspend fun perform(params: UseCaseChannelRequest): DomainLayerChannels.SKChannel? {
+        return skLocalDataSourceReadChannels.getChannel(
+            UseCaseChannelRequest(
+                workspaceId = params.workspaceId,
+                uuid = params.uuid
+            )
+        )
+    }
 }
 
-data class UseCaseChannelRequest(val workspaceId: String, val uuid: String)
+data class UseCaseChannelRequest(val workspaceId: String, val uuid: String, val limit: Int = 20, val offset: Int = 0)

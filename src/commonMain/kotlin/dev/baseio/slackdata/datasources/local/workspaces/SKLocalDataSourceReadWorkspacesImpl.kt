@@ -43,7 +43,7 @@ class SKLocalDataSourceReadWorkspacesImpl(
                         entityMapper.mapToDomain(slackWorkspace)
                     }
                 }
-            }.mapCatching {
+            }.recoverCatching {
                 slackDB.slackDBQueries.selectAllWorkspaces().executeAsList().firstOrNull()?.let { slackWorkspace ->
                     entityMapper.mapToDomain(slackWorkspace)
                 }

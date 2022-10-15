@@ -9,5 +9,5 @@ import kotlinx.coroutines.flow.Flow
 interface SKNetworkDataSourceReadWorkspaces {
   suspend fun findWorkspacesForEmail(email: Email): KMSKWorkspaces
   suspend fun findWorkspaceByName(name: Name): KMSKWorkspace
-  fun getWorkspaces(): Flow<KMSKWorkspaces>
+  suspend fun getWorkspaces(): KMSKWorkspaces
 }

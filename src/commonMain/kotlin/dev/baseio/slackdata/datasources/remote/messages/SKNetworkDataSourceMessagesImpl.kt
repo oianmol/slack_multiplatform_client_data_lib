@@ -13,12 +13,18 @@ import kotlinx.coroutines.flow.mapLatest
 
 class SKNetworkDataSourceMessagesImpl(private val grpcCalls: GrpcCalls) : SKNetworkDataSourceMessages {
 
-  override fun getMessages(request: UseCaseChannelRequest): Flow<List<DomainLayerMessages.SKMessage>> {
+  override fun registerChangeInMessages(request: UseCaseChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage, DomainLayerMessages.SKMessage>> {
     return grpcCalls.listenMessages(kmSKWorkspaceChannelRequest {
       workspaceId = request.workspaceId
       channelId = request.uuid
     }).mapLatest { message->
-      message.messagesList.map {  it.toDomainLayerMessage() }
+      Pair(message.previous.toDomainLayerMessage(),message.latest.toDomainLayerMessage())
+    }
+  }
+
+  override suspend fun fetchMessages(request: UseCaseChannelRequest): List<DomainLayerMessages.SKMessage> {
+    return grpcCalls.fetchMessages(request).messagesList.map {
+      it.toDomainLayerMessage()
     }
   }
 

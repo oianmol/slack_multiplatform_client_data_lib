@@ -13,13 +13,14 @@ class UseCaseFetchWorkspaces(
     private val skLocalDataSourceWriteWorkspaces: SKLocalDataSourceWriteWorkspaces,
     private val skLocalDataSourceReadWorkspaces: SKLocalDataSourceReadWorkspaces
 ) {
-    operator fun invoke(): Flow<List<DomainLayerWorkspaces.SKWorkspace>> {
-        return skNetworkDataSourceReadWorkspaces.getWorkspaces().flatMapLatest { kmSKWorkspaces ->
-            skLocalDataSourceWriteWorkspaces.saveWorkspaces(kmSKWorkspaces.workspacesList.map {
-                it.toSKWorkspace()
+    suspend operator fun invoke(): Flow<List<DomainLayerWorkspaces.SKWorkspace>> {
+        return kotlin.runCatching {
+            val kmSKWorkspaces = skNetworkDataSourceReadWorkspaces.getWorkspaces()
+            skLocalDataSourceWriteWorkspaces.saveWorkspaces(kmSKWorkspaces.workspacesList.map { kmskWorkspace ->
+                kmskWorkspace.toSKWorkspace()
             })
-            skLocalDataSourceReadWorkspaces.fetchWorkspaces()
-        }.catch {
+        }.run {
+            // TODO notify upstream of any errors!
             skLocalDataSourceReadWorkspaces.fetchWorkspaces()
         }
     }

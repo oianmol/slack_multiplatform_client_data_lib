@@ -8,6 +8,6 @@ class UseCaseFetchLocalUsers(
   private val SKLocalDataSourceUsers: SKLocalDataSourceUsers
 ) {
   fun performStreaming(params: String): Flow<List<DomainLayerUsers.SKUser>> {
-    return SKLocalDataSourceUsers.getUsers(params)
+    return SKLocalDataSourceUsers.getUsersFlow(params)
   }
 }

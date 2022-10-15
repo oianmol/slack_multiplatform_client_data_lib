@@ -5,21 +5,21 @@ import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.users.SKNetworkDataSourceReadUsers
 import dev.baseio.slackdomain.usecases.BaseUseCase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapLatest
 
 class UseCaseFetchAndSaveUsers(
-  private val SKLocalDataSourceUsers: SKLocalDataSourceUsers,
-  private val SKDataSourceCreateUsers: SKDataSourceCreateUsers,
-  private val skNetworkDataSourceReadUsers: SKNetworkDataSourceReadUsers
+    private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
+    private val skDataSourceCreateUsers: SKDataSourceCreateUsers,
+    private val skNetworkDataSourceReadUsers: SKNetworkDataSourceReadUsers
 ) :
-  BaseUseCase<List<DomainLayerUsers.SKUser>, String> {
-  override fun performStreaming(params: String): Flow<List<DomainLayerUsers.SKUser>> {
-    return skNetworkDataSourceReadUsers.fetchUsers(workspaceId = params).mapLatest { users ->
-      SKDataSourceCreateUsers.saveUsers(users)
-    }.flatMapLatest { _ ->
-      SKLocalDataSourceUsers.getUsers(params)
+    BaseUseCase<List<DomainLayerUsers.SKUser>, String> {
+    override suspend fun perform(params: String): List<DomainLayerUsers.SKUser> {
+        return kotlin.runCatching {
+            val users = skNetworkDataSourceReadUsers.fetchUsers(workspaceId = params)
+            skDataSourceCreateUsers.saveUsers(users)
+        }.run {
+            // whatever the result be, we expose the local data
+            // TODO tell the View about any exception that happened.
+            skLocalDataSourceUsers.getUsers(params)
+        }
     }
-  }
 }

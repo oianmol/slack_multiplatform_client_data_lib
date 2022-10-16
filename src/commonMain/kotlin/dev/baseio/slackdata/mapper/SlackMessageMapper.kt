@@ -3,7 +3,7 @@ package dev.baseio.slackdata.mapper
 import database.SlackMessage
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 
-class SlackMessageMapper constructor() : EntityMapper<DomainLayerMessages.SKMessage, SlackMessage> {
+class SlackMessageMapper : EntityMapper<DomainLayerMessages.SKMessage, SlackMessage> {
   override fun mapToDomain(entity: SlackMessage): DomainLayerMessages.SKMessage {
     return DomainLayerMessages.SKMessage(
       entity.uuid,
@@ -13,7 +13,9 @@ class SlackMessageMapper constructor() : EntityMapper<DomainLayerMessages.SKMess
       entity.receiver_,
       entity.sender,
       entity.createdDate,
-      entity.modifiedDate
+      entity.modifiedDate,
+      isDeleted = entity.isDeleted == 1L,
+      isSynced = entity.isSynced == 1L
     )
   }
 
@@ -27,6 +29,8 @@ class SlackMessageMapper constructor() : EntityMapper<DomainLayerMessages.SKMess
       model.sender,
       model.createdDate,
       model.modifiedDate,
+      if (model.isDeleted) 1 else 0,
+      if (model.isSynced) 1 else 0
     )
   }
 }

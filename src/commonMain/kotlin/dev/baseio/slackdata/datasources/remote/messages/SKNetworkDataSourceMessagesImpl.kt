@@ -12,48 +12,51 @@ import kotlinx.coroutines.flow.mapLatest
 
 class SKNetworkDataSourceMessagesImpl(private val grpcCalls: GrpcCalls) : SKNetworkDataSourceMessages {
 
-    override fun registerChangeInMessages(request: UseCaseChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {
-        return grpcCalls.listenToChangeInMessages(request).mapLatest { message ->
-            Pair(
-                if (message.hasPrevious()) message.previous.toDomainLayerMessage() else null,
-                if (message.hasLatest()) message.latest.toDomainLayerMessage() else null
-            )
-        }
+  override fun registerChangeInMessages(request: UseCaseChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {
+    return grpcCalls.listenToChangeInMessages(request).mapLatest { message ->
+      Pair(
+        if (message.hasPrevious()) message.previous.toDomainLayerMessage() else null,
+        if (message.hasLatest()) message.latest.toDomainLayerMessage() else null
+      )
     }
+  }
 
-    override suspend fun fetchMessages(request: UseCaseChannelRequest): Result<List<DomainLayerMessages.SKMessage>> {
-        return kotlin.runCatching {
-            grpcCalls.fetchMessages(request).messagesList.map {
-                it.toDomainLayerMessage()
-            }
-        }
+  override suspend fun fetchMessages(request: UseCaseChannelRequest): Result<List<DomainLayerMessages.SKMessage>> {
+    return kotlin.runCatching {
+      grpcCalls.fetchMessages(request).messagesList.map {
+        it.toDomainLayerMessage()
+      }
     }
+  }
 
-    override suspend fun sendMessage(params: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage {
-        return grpcCalls.sendMessage(kmSKMessage {
-            uuid = params.uuid
-            workspaceId = params.workspaceId
-            channelId = params.channelId
-            text = params.message
-            `receiver` = params.receiver
-            sender = params.sender
-            createdDate = params.createdDate
-            modifiedDate = params.modifiedDate
-        }).toDomainLayerMessage()
-    }
+  override suspend fun sendMessage(params: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage {
+    return grpcCalls.sendMessage(kmSKMessage {
+      uuid = params.uuid
+      workspaceId = params.workspaceId
+      isDeleted = params.isDeleted
+      channelId = params.channelId
+      text = params.message
+      `receiver` = params.receiver
+      sender = params.sender
+      createdDate = params.createdDate
+      modifiedDate = params.modifiedDate
+    }).toDomainLayerMessage()
+  }
 }
 
 fun KMSKMessage.toDomainLayerMessage(): DomainLayerMessages.SKMessage {
-    val params = this
-    return DomainLayerMessages.SKMessage(
-        uuid = params.uuid,
-        workspaceId = params.workspaceId,
-        channelId = params.channelId,
-        message = params.text,
-        `receiver` = params.receiver,
-        sender = params.sender,
-        createdDate = params.createdDate,
-        modifiedDate = params.modifiedDate,
-        senderInfo = params.senderInfo.toSKUser()
-    )
+  val params = this
+  return DomainLayerMessages.SKMessage(
+    uuid = params.uuid,
+    workspaceId = params.workspaceId,
+    channelId = params.channelId,
+    message = params.text,
+    `receiver` = params.receiver,
+    sender = params.sender,
+    createdDate = params.createdDate,
+    modifiedDate = params.modifiedDate,
+    senderInfo = params.senderInfo.toSKUser(),
+    isDeleted = params.isDeleted,
+    isSynced = true
+  )
 }

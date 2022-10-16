@@ -38,6 +38,8 @@ class SlackSKLocalDataSourceChannelLastMessage(
             channelsWithLastMessage.sender,
             channelsWithLastMessage.createdDate,
             channelsWithLastMessage.modifiedDate,
+            channelsWithLastMessage.isDeleted,
+            channelsWithLastMessage.isSynced
           )
         DomainLayerMessages.SKLastMessage(
           SKChannelMapper.mapToDomain(channel),

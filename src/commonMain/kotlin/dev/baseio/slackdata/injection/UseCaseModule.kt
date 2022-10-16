@@ -1,11 +1,8 @@
 package dev.baseio.slackdata.injection
 
 import dev.baseio.slackdomain.usecases.auth.*
-import dev.baseio.slackdomain.usecases.chat.UseCaseSendMessage
 import dev.baseio.slackdomain.usecases.channels.*
-import dev.baseio.slackdomain.usecases.chat.UseCaseFetchAndUpdateChangeInMessages
-import dev.baseio.slackdomain.usecases.chat.UseCaseFetchAndSaveMessages
-import dev.baseio.slackdomain.usecases.chat.UseCaseFetchMessages
+import dev.baseio.slackdomain.usecases.chat.*
 import dev.baseio.slackdomain.usecases.users.UseCaseFetchLocalUsers
 import dev.baseio.slackdomain.usecases.users.UseCaseFetchAndSaveUsers
 import dev.baseio.slackdomain.usecases.workspaces.*

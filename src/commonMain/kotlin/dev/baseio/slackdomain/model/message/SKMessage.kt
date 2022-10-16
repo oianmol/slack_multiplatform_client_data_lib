@@ -14,7 +14,9 @@ interface DomainLayerMessages {
     val sender: String,
     val createdDate: Long,
     val modifiedDate: Long,
-    var senderInfo: DomainLayerUsers.SKUser? = null
+    var senderInfo: DomainLayerUsers.SKUser? = null,
+    val isDeleted: Boolean,
+    var isSynced: Boolean
   )
 
   data class SKLastMessage(

@@ -6,9 +6,7 @@ pluginManagement {
         mavenCentral()
         mavenLocal()
     }
-    plugins {
-        kotlin("jvm") version "1.7.20"
-    }
+
     resolutionStrategy {
         eachPlugin {
             if (requested.id.namespace == "com.android" || requested.id.name == "kotlin-android-extensions") {

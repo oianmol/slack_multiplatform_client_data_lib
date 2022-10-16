@@ -38,6 +38,19 @@ CREATE TABLE IF NOT EXISTS slackChannel(
     isOneToOne INTEGER DEFAULT NULL
 );
 
+deleteChannels:
+DELETE FROM slackChannel;
+
+deleteMessages:
+DELETE FROM slackMessage;
+
+deleteSlackUser:
+DELETE FROM slackUser;
+
+deleteSlackWorkspaces:
+DELETE FROM slackWorkspaces;
+
+
 insertChannel:
 INSERT OR REPLACE INTO slackChannel(uuid,workspaceId,name,createdDate,modifiedDate,isMuted,isStarred,isPrivate,isShareOutSide,photo,isOneToOne) VALUES(?,?,?,?,?,?,?,?,?,?,?);
 

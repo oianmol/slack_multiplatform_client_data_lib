@@ -79,8 +79,8 @@ class GrpcCalls(
         }, fetchToken(token))
     }
 
-    suspend fun login(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKAuthResult {
-        return authStub.login(kmskAuthUser, fetchToken(token))
+    suspend fun login(kmskAuthUser: KMSKAuthUser): KMSKAuthResult {
+        return authStub.login(kmskAuthUser)
     }
 
     suspend fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces {

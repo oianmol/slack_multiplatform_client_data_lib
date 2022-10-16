@@ -1,9 +1,6 @@
 package dev.baseio.slackdata.injection
 
-import dev.baseio.slackdomain.usecases.auth.LoginUseCase
-import dev.baseio.slackdomain.usecases.auth.UseCaseClearAuth
-import dev.baseio.slackdomain.usecases.auth.UseCaseCurrentUser
-import dev.baseio.slackdomain.usecases.auth.UseCaseRegisterUser
+import dev.baseio.slackdomain.usecases.auth.*
 import dev.baseio.slackdomain.usecases.chat.UseCaseSendMessage
 import dev.baseio.slackdomain.usecases.channels.*
 import dev.baseio.slackdomain.usecases.chat.UseCaseFetchAndUpdateChangeInMessages
@@ -26,7 +23,7 @@ val useCaseModule = module {
     single { UseCaseFetchAndUpdateChangeInMessages(get(), get(), get()) }
     single { UseCaseFetchAndSaveMessages(get(), get(), get()) }
     single { UseCaseSendMessage(get(), get()) }
-    single { UseCaseFetchMessages(get(),get()) }
+    single { UseCaseFetchMessages(get(), get()) }
     single { UseCaseFetchAllChannels(get()) }
     single { UseCaseCreateChannel(get(), get()) }
     single { UseCaseCreateOneToOneChannel(get()) }
@@ -36,7 +33,7 @@ val useCaseModule = module {
     single { UseCaseFetchLocalUsers(get()) }
     single { UseCaseFindChannelById(get(), get(), get()) }
     single { UseCaseFetchAndSaveUsers(get(), get()) }
-    single { UseCaseClearAuth(get()) }
+    single { UseCaseLogout(get(), get()) }
     single { UseCaseCurrentUser(get()) }
     single { UseCaseCreateWorkspace(get(), get(), get(), get()) }
     single { UseCaseRegisterUser(get(), get(), get()) }

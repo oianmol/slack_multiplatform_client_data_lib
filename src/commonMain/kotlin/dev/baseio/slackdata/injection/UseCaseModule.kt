@@ -14,7 +14,8 @@ import org.koin.dsl.module
 val useCaseModule = module {
     single { LoginUseCase(get(), get()) }
     single { FindWorkspacesUseCase(get()) }
-    single { UseCaseFetchWorkspaces(get(), get(), get()) }
+    single { UseCaseFetchAndSaveWorkspaces(get(), get()) }
+    single { UseCaseGetWorkspaces(get()) }
     single { UseCaseSetLastSelectedWorkspace(get()) }
     single { UseCaseFetchRecentChannels(get()) }
     single { UseCaseGetSelectedWorkspace(get()) }

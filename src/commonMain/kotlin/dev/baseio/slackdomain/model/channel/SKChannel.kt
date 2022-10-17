@@ -6,13 +6,13 @@ import kotlinx.datetime.Clock
 interface DomainLayerChannels {
 
   sealed class SKChannel(
-    val workspaceId: String,
-    val channelId: String,
+    var workspaceId: String,
+    var channelId: String,
     var pictureUrl: String? = null,
     var channelName: String? = null
   ) {
     data class SkDMChannel(
-      val uuid: String,
+      var uuid: String,
       val workId: String,
       var senderId: String,
       var receiverId: String,
@@ -22,7 +22,7 @@ interface DomainLayerChannels {
     ) : SKChannel(workId, uuid)
 
     data class SkGroupChannel(
-      val uuid: String,
+      var uuid: String,
       val workId: String,
       var name: String,
       val createdDate: Long = Clock.System.now().toEpochMilliseconds(),

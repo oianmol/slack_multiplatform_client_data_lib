@@ -6,6 +6,7 @@ import dev.baseio.slackdomain.usecases.chat.*
 import dev.baseio.slackdomain.usecases.users.UseCaseFetchLocalUsers
 import dev.baseio.slackdomain.usecases.users.UseCaseFetchAndSaveUsers
 import dev.baseio.slackdomain.usecases.users.UseCaseFetchAndUpdateChangeInUsers
+import dev.baseio.slackdomain.usecases.users.UseCaseFetchChannelsWithSearch
 import dev.baseio.slackdomain.usecases.workspaces.*
 import org.koin.dsl.module
 
@@ -35,6 +36,7 @@ val useCaseModule = module {
   single { UseCaseFindChannelById(get(), get(), get()) }
   single { UseCaseFetchAndSaveUsers(get(), get()) }
   single { UseCaseLogout(get(), get()) }
+  single { UseCaseFetchChannelsWithSearch(get(), get()) }
   single { UseCaseCurrentUser(get()) }
   single { UseCaseCreateWorkspace(get(), get(), get(), get()) }
   single { UseCaseRegisterUser(get(), get(), get()) }

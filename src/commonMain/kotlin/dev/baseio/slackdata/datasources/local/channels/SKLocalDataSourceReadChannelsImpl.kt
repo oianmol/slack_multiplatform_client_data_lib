@@ -14,6 +14,7 @@ import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.serialization.decodeFromString
@@ -49,7 +50,7 @@ class SKLocalDataSourceReadChannelsImpl(
           directChannelMapper.mapToDomain(skDMChannel)
         }
       }
-    return merge(flow, flowDMChannels)
+    return combine(flow, flowDMChannels) { a, b -> a + b }
   }
 
   override fun getChannelById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
@@ -86,11 +87,13 @@ class SKLocalDataSourceReadChannelsImpl(
           }
         }
 
-    return merge(publicFlow, dmFlow)
+    return combine(publicFlow, dmFlow) { a, b ->
+      a + b
+    }
   }
 
   override suspend fun getChannel(request: UseCaseWorkspaceChannelRequest): DomainLayerChannels.SKChannel? {
-    return getChannelById(request.workspaceId,request.channelId)
+    return getChannelById(request.workspaceId, request.channelId)
   }
 
 

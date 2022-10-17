@@ -20,7 +20,9 @@ class SKNetworkDataSourceWriteChannelsImpl(
         when (params) {
           is DomainLayerChannels.SKChannel.SkDMChannel -> {
             grpcCalls.saveDMChannel(kmSKDMChannel {
-              uuid = params.uuid
+              params.uuid.takeIf { it.isNotEmpty() }?.let {
+                uuid = params.uuid
+              }
               workspaceId = params.workId
               createdDate = params.createdDate
               modifiedDate = params.modifiedDate

@@ -7,7 +7,11 @@ import kotlinx.coroutines.flow.Flow
 class UseCaseFetchLocalUsers(
   private val SKLocalDataSourceUsers: SKLocalDataSourceUsers
 ) {
-  fun performStreaming(params: String): Flow<List<DomainLayerUsers.SKUser>> {
-    return SKLocalDataSourceUsers.getUsersFlow(params)
+  operator fun invoke(workspaceId: String, search: String): Flow<List<DomainLayerUsers.SKUser>> {
+    return SKLocalDataSourceUsers.getUsersByWorkspaceAndName(workspaceId, search)
+  }
+
+  operator fun invoke(workspaceId: String): Flow<List<DomainLayerUsers.SKUser>> {
+    return SKLocalDataSourceUsers.getUsersByWorkspace(workspaceId)
   }
 }

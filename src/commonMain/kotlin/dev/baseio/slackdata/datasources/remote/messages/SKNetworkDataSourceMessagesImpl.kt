@@ -1,18 +1,19 @@
 package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.GrpcCalls
+import dev.baseio.slackdata.datasources.remote.channels.mapToDomainSkChannel
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.usecases.auth.toSKUser
-import dev.baseio.slackdomain.usecases.channels.UseCaseChannelRequest
+import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
 
 class SKNetworkDataSourceMessagesImpl(private val grpcCalls: GrpcCalls) : SKNetworkDataSourceMessages {
 
-  override fun registerChangeInMessages(request: UseCaseChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {
+  override fun registerChangeInMessages(request: UseCaseWorkspaceChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {
     return grpcCalls.listenToChangeInMessages(request).mapLatest { message ->
       Pair(
         if (message.hasPrevious()) message.previous.toDomainLayerMessage() else null,
@@ -21,7 +22,7 @@ class SKNetworkDataSourceMessagesImpl(private val grpcCalls: GrpcCalls) : SKNetw
     }
   }
 
-  override suspend fun fetchMessages(request: UseCaseChannelRequest): Result<List<DomainLayerMessages.SKMessage>> {
+  override suspend fun fetchMessages(request: UseCaseWorkspaceChannelRequest): Result<List<DomainLayerMessages.SKMessage>> {
     return kotlin.runCatching {
       grpcCalls.fetchMessages(request).messagesList.map {
         it.toDomainLayerMessage()
@@ -36,7 +37,6 @@ class SKNetworkDataSourceMessagesImpl(private val grpcCalls: GrpcCalls) : SKNetw
       isDeleted = params.isDeleted
       channelId = params.channelId
       text = params.message
-      `receiver` = params.receiver
       sender = params.sender
       createdDate = params.createdDate
       modifiedDate = params.modifiedDate
@@ -51,11 +51,9 @@ fun KMSKMessage.toDomainLayerMessage(): DomainLayerMessages.SKMessage {
     workspaceId = params.workspaceId,
     channelId = params.channelId,
     message = params.text,
-    `receiver` = params.receiver,
     sender = params.sender,
     createdDate = params.createdDate,
     modifiedDate = params.modifiedDate,
-    senderInfo = params.senderInfo.toSKUser(),
     isDeleted = params.isDeleted,
     isSynced = true
   )

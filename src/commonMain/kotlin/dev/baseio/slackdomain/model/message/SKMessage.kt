@@ -10,13 +10,11 @@ interface DomainLayerMessages {
     val workspaceId: String,
     val channelId: String,
     val message: String,
-    val receiver: String,
     val sender: String,
     val createdDate: Long,
     val modifiedDate: Long,
-    var senderInfo: DomainLayerUsers.SKUser? = null,
-    val isDeleted: Boolean,
-    var isSynced: Boolean
+    var isDeleted: Boolean = false,
+    var isSynced: Boolean = false
   )
 
   data class SKLastMessage(

@@ -1,20 +1,16 @@
 package dev.baseio.slackdomain.usecases.chat
 
 
-import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.datasources.local.messages.SKLocalDataSourceMessages
-import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
-import dev.baseio.slackdomain.usecases.BaseUseCase
-import dev.baseio.slackdomain.usecases.channels.UseCaseChannelRequest
+import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.*
 
 class UseCaseFetchAndUpdateChangeInMessages(
   private val SKLocalDataSourceMessages: SKLocalDataSourceMessages,
-  private val skNetworkDataSourceMessages: SKNetworkDataSourceMessages,
-  private val skLocalDataSourceUsers: SKLocalDataSourceUsers
+  private val skNetworkDataSourceMessages: SKNetworkDataSourceMessages
 ) {
-  operator fun invoke(request: UseCaseChannelRequest): Flow<Unit> {
+  operator fun invoke(request: UseCaseWorkspaceChannelRequest): Flow<Unit> {
     return skNetworkDataSourceMessages.registerChangeInMessages(request)
       .map { messageChangeSnapshot ->
         messageChangeSnapshot.first?.let {
@@ -22,7 +18,6 @@ class UseCaseFetchAndUpdateChangeInMessages(
           // SKLocalDataSourceMessages.saveMessage(it)
         }
         messageChangeSnapshot.second?.let {
-          skLocalDataSourceUsers.saveUser(it.senderInfo)
           SKLocalDataSourceMessages.saveMessage(it)
         }
         Unit

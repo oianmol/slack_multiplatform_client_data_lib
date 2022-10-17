@@ -17,7 +17,7 @@ class SlackSKLocalDataSourceMessagesImpl constructor(
   private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider
 ) : SKLocalDataSourceMessages {
   override fun streamLocalMessages(workspaceId: String, userId: String): Flow<List<DomainLayerMessages.SKMessage>> {
-    return slackMessageDao.slackDBQueries.selectAllMessagesByUserId(workspaceId, userId)
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(workspaceId, userId)
       .asFlow()
       .flowOn(coroutineMainDispatcherProvider.io)
       .mapToList(coroutineMainDispatcherProvider.default)
@@ -35,7 +35,6 @@ class SlackSKLocalDataSourceMessagesImpl constructor(
         params.workspaceId,
         params.channelId,
         params.message,
-        params.receiver,
         params.sender,
         params.createdDate,
         params.modifiedDate,

@@ -13,7 +13,7 @@ class UseCaseLogout(
             deleteSlackUser()
             deleteSlackWorkspaces()
             deleteAllMessages()
-            deleteChannels()
+            deletePublicChannels()
         }
     }
 }

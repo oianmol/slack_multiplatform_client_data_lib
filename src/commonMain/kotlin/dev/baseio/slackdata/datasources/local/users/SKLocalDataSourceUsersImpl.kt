@@ -11,49 +11,61 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class SKLocalDataSourceUsersImpl(
-    private val slackDB: SlackDB,
-    private val mapper: EntityMapper<DomainLayerUsers.SKUser, SlackUser>
+  private val slackDB: SlackDB,
+  private val mapper: EntityMapper<DomainLayerUsers.SKUser, SlackUser>
 ) :
-    SKLocalDataSourceUsers {
-    override fun getUsersFlow(workspace: String): Flow<List<DomainLayerUsers.SKUser>> {
-        return slackDB.slackDBQueries
-            .selectAllUsers(workspace)
-            .asFlow()
-            .mapToList().map { slackUsers ->
-                slackUsers.map { slackUser ->
-                    mapper.mapToDomain(slackUser)
-                }
-            }
-    }
+  SKLocalDataSourceUsers {
 
-    override fun getUsers(workspace: String): List<DomainLayerUsers.SKUser> {
-        return slackDB.slackDBQueries
-            .selectAllUsers(workspace).executeAsList().map { slackUser ->
-                mapper.mapToDomain(slackUser)
-            }
-    }
-
-    override fun getUser(workspaceId: String, uuid: String): DomainLayerUsers.SKUser? {
-        return slackDB.slackDBQueries.getUser(workspaceId, uuid).executeAsOneOrNull()?.let {
-            mapper.mapToDomain(it)
+  override fun getUsersByWorkspaceAndName(workspace: String, name: String): Flow<List<DomainLayerUsers.SKUser>> {
+    return slackDB.slackDBQueries
+      .selectAllUsersAndName(workspace, name)
+      .asFlow()
+      .mapToList().map { slackUsers ->
+        slackUsers.map { slackUser ->
+          mapper.mapToDomain(slackUser)
         }
-    }
+      }
+  }
 
-    override fun saveUser(senderInfo: DomainLayerUsers.SKUser?) {
-        senderInfo?.let {
-            slackDB.slackDBQueries.insertUser(
-                it.uuid,
-                it.workspaceId,
-                it.gender,
-                it.name,
-                it.location,
-                it.email,
-                it.username,
-                it.userSince,
-                it.phone,
-                it.avatarUrl
-            )
+  override fun getUsersByWorkspace(workspace: String): Flow<List<DomainLayerUsers.SKUser>> {
+    return slackDB.slackDBQueries
+      .selectAllUsers(workspace)
+      .asFlow()
+      .mapToList().map { slackUsers ->
+        slackUsers.map { slackUser ->
+          mapper.mapToDomain(slackUser)
         }
+      }
+  }
 
+  override fun getUsers(workspace: String): List<DomainLayerUsers.SKUser> {
+    return slackDB.slackDBQueries
+      .selectAllUsers(workspace).executeAsList().map { slackUser ->
+        mapper.mapToDomain(slackUser)
+      }
+  }
+
+  override fun getUser(workspaceId: String, uuid: String): DomainLayerUsers.SKUser? {
+    return slackDB.slackDBQueries.getUser(workspaceId, uuid).executeAsOneOrNull()?.let {
+      mapper.mapToDomain(it)
     }
+  }
+
+  override fun saveUser(senderInfo: DomainLayerUsers.SKUser?) {
+    senderInfo?.let {
+      slackDB.slackDBQueries.insertUser(
+        it.uuid,
+        it.workspaceId,
+        it.gender,
+        it.name,
+        it.location,
+        it.email,
+        it.username,
+        it.userSince,
+        it.phone,
+        it.avatarUrl
+      )
+    }
+
+  }
 }

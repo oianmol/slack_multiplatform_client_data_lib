@@ -1,9 +1,6 @@
 package dev.baseio.slackdata.injection
 
-import database.SlackChannel
-import database.SlackMessage
-import database.SlackUser
-import database.SlackWorkspaces
+import database.*
 import dev.baseio.slackdata.mapper.*
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
@@ -15,16 +12,10 @@ import org.koin.dsl.module
 
 val dataMappersModule = module {
   single<EntityMapper<DomainLayerWorkspaces.SKWorkspace, SlackWorkspaces>>(qualifier = SlackWorkspaceMapperQualifier) { SlackWorkspaceMapper() }
-  single<EntityMapper<DomainLayerUsers.SKUser, SlackChannel>>(qualifier = SlackUserChannelQualifier) { SlackUserChannelMapper() }
   single<EntityMapper<DomainLayerUsers.SKUser, SlackUser>>(qualifier = SlackUserRandomUserQualifier) { SlackUserMapper() }
-  single<EntityMapper<DomainLayerChannels.SKChannel, SlackChannel>>(qualifier = SlackChannelChannelQualifier) { SlackChannelMapper() }
+  single<EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>>(qualifier = SlackChannelChannelQualifier) { SlackPublicChannelMapper() }
+  single<EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>>(qualifier = SlackChannelDMChannelQualifier) { SlackDMChannelMapper() }
   single<EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>>(qualifier = SlackMessageMessageQualifier) { SlackMessageMapper() }
-  single<EntityToMapper<DomainLayerUsers.SKUser, DomainLayerChannels.SKChannel>>(qualifier = SlackSkUserSkChannel) { SlackUserToChannelMapper() }
-}
-
-object SlackSkUserSkChannel : Qualifier{
-  override val value: QualifierValue
-    get() = "SlackSkUserSkChannel"
 }
 
 object SlackWorkspaceMapperQualifier : Qualifier {
@@ -51,5 +42,9 @@ object SlackUserRandomUserQualifier : Qualifier {
 object SlackChannelChannelQualifier : Qualifier {
   override val value: QualifierValue
     get() = "SlackChannelChannel"
+}
 
+object SlackChannelDMChannelQualifier : Qualifier {
+  override val value: QualifierValue
+    get() = "SlackChannelDMChannelQualifier"
 }

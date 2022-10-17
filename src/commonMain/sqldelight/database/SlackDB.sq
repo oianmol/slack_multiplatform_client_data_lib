@@ -24,22 +24,106 @@ SELECT * FROM slackWorkspaces ORDER BY modifiedTime DESC;
 selectWorkspaceById:
 SELECT * FROM slackWorkspaces WHERE uid = :workSpaceId;
 
-CREATE TABLE IF NOT EXISTS slackChannel(
+CREATE TABLE IF NOT EXISTS skPublicChannel(
     uuid TEXT NOT NULL PRIMARY KEY,
     workspaceId TEXT NOT NULL,
-    name TEXT DEFAULT NULL ,
-    createdDate INTEGER  DEFAULT NULL ,
-    modifiedDate INTEGER DEFAULT NULL ,
-    isMuted INTEGER  DEFAULT NULL ,
-    isStarred INTEGER  DEFAULT NULL ,
-    isPrivate INTEGER  DEFAULT NULL ,
-    isShareOutSide INTEGER  DEFAULT NULL ,
-    photo TEXT  DEFAULT NULL ,
-    isOneToOne INTEGER DEFAULT NULL
+    name TEXT NOT NULL ,
+    createdDate INTEGER  NOT NULL ,
+    modifiedDate INTEGER NOT NULL ,
+    photo TEXT DEFAULT NULL,
+    isDeleted INTEGER DEFAULT 0
 );
 
-deleteChannels:
-DELETE FROM slackChannel;
+CREATE TABLE IF NOT EXISTS skDMChannel(
+    uuid TEXT NOT NULL PRIMARY KEY,
+    workspaceId TEXT NOT NULL,
+    createdDate INTEGER  NOT NULL ,
+    modifiedDate INTEGER NOT NULL ,
+    senderId TEXT NOT NULL ,
+    receiverId TEXT NOT NULL ,
+    isDeleted INTEGER DEFAULT 0
+);
+
+insertDMChannel:
+INSERT OR REPLACE INTO skDMChannel(uuid,workspaceId,createdDate,modifiedDate,senderId,receiverId,isDeleted) VALUES(?,?,?,?,?,?,?);
+
+
+insertPublicChannel:
+INSERT OR REPLACE INTO skPublicChannel(uuid,workspaceId,name,createdDate,modifiedDate,photo,isDeleted) VALUES(?,?,?,?,?,?,?);
+
+countPublicChannels:
+SELECT COUNt(*) FROM skPublicChannel WHERE workspaceId=:workspaceid;
+
+countDMChannels:
+SELECT COUNt(*) FROM skDMChannel WHERE workspaceId=:workspaceid;
+
+selectRecentPublicChannelsWithMessages:
+SELECT *
+FROM skPublicChannel
+WHERE  workspaceId=:workspaceId IN (SELECT (SELECT *
+                         FROM slackMessage
+                         WHERE skPublicChannel.uuid   = slackMessage.channelId
+                         ORDER BY slackMessage.modifiedDate DESC
+                         LIMIT 1)
+                 FROM slackMessage);
+
+selectRecentDMChannelsWithMessages:
+SELECT *
+FROM skDMChannel
+WHERE  workspaceId=:workspaceId IN (SELECT (SELECT *
+                         FROM slackMessage
+                         WHERE skDMChannel.uuid   = slackMessage.channelId
+                         ORDER BY slackMessage.modifiedDate DESC
+                         LIMIT 1)
+                 FROM slackMessage);
+
+selectAllPublicChannelsByName:
+SELECT * FROM skPublicChannel WHERE workspaceId=:workspaceid AND name LIKE '%' || :params || '%';
+
+selectAllPublicChannels:
+SELECT * FROM skPublicChannel WHERE workspaceId=:workspaceid ORDER BY name ASC;
+
+selectAllDMChannels:
+SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid;
+
+selectPublicChannelById:
+SELECT * FROM skPublicChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
+
+selectDMChannelById:
+SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
+
+selectLastMessageOfChannel:
+SELECT * FROM slackMessage
+            AS channelMessage
+            JOIN (SELECT channelId, max(modifiedDate) AS received_at FROM slackMessage
+            WHERE workspaceId =:workspaceId GROUP BY channelId)
+            AS channelMessage_last
+            ON channelMessage_last.channelId = channelMessage.channelId
+            AND channelMessage_last.received_at = channelMessage.modifiedDate
+            ORDER BY channelMessage_last.received_at DESC;
+
+deleteAllPublicChannels:
+DELETE FROM skPublicChannel WHERE workspaceId=:workspaceid;
+
+deleteAllDMChannels:
+DELETE FROM skDMChannel WHERE workspaceId=:workspaceid;
+
+CREATE TABLE IF NOT EXISTS slackChannelMember(
+     uuid TEXT NOT NULL PRIMARY KEY,
+     workspaceId TEXT  NOT NULL ,
+     channelId TEXT  NOT NULL ,
+     memberId TEXT  NOT NULL
+);
+
+insertMember:
+INSERT OR REPLACE INTO slackChannelMember(uuid,workspaceId,channelId,memberId) VALUES (?,?,?,?);
+
+selectAllMembers:
+SELECT * FROM slackChannelMember WHERE channelId=:channelId AND workspaceId=:workspaceId;
+
+
+deletePublicChannels:
+DELETE FROM skPublicChannel;
 
 deleteMessages:
 DELETE FROM slackMessage;
@@ -50,52 +134,14 @@ DELETE FROM slackUser;
 deleteSlackWorkspaces:
 DELETE FROM slackWorkspaces;
 
-
-insertChannel:
-INSERT OR REPLACE INTO slackChannel(uuid,workspaceId,name,createdDate,modifiedDate,isMuted,isStarred,isPrivate,isShareOutSide,photo,isOneToOne) VALUES(?,?,?,?,?,?,?,?,?,?,?);
-
-countChannels:
-SELECT COUNt(*) FROM slackChannel WHERE workspaceId=:workspaceid;
-
-selectRecentChannelsWithMessages:
-SELECT *
-FROM slackChannel
-WHERE  workspaceId=:workspaceId IN (SELECT (SELECT *
-                         FROM slackMessage
-                         WHERE slackChannel.uuid   = slackMessage.channelId
-                         ORDER BY slackMessage.modifiedDate DESC
-                         LIMIT 1)
-                 FROM slackMessage);
-
-selectAllChannelsByName:
-SELECT * FROM slackChannel WHERE workspaceId=:workspaceid AND name LIKE '%' || :params || '%';
-
-selectAllChannels:
-SELECT * FROM slackChannel WHERE workspaceId=:workspaceid ORDER BY name ASC;
-
-selectChannelById:
-SELECT * FROM slackChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
-
-selectLastMessageOfChannels:
-SELECT * FROM slackMessage
-            AS channelMessage
-            JOIN (SELECT channelId, max(modifiedDate) AS received_at FROM slackMessage
-            WHERE workspaceId =:workspaceId GROUP BY channelId)
-            AS channelMessage_last
-            ON channelMessage_last.channelId = channelMessage.channelId
-            AND channelMessage_last.received_at = channelMessage.modifiedDate
-            ORDER BY channelMessage_last.received_at DESC;
-
-deleteAllChannels:
-DELETE FROM slackChannel WHERE workspaceId=:workspaceid;
-
+deleteChannelMembers:
+DELETE FROM slackChannelMember;
 
 CREATE TABLE IF NOT EXISTS slackMessage(
     uuid TEXT NOT NULL PRIMARY KEY,
     workspaceId TEXT  NOT NULL ,
     channelId TEXT  NOT NULL ,
     message TEXT NOT NULL ,
-    receiver TEXT  NOT NULL ,
     sender TEXT  NOT NULL ,
     createdDate INTEGER  NOT NULL ,
     modifiedDate INTEGER  NOT NULL,
@@ -104,16 +150,13 @@ CREATE TABLE IF NOT EXISTS slackMessage(
 );
 
 insertMessage:
-INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,receiver,sender,createdDate,modifiedDate,isDeleted,isSynced) VALUES(?,?,?,?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,sender,createdDate,modifiedDate,isDeleted,isSynced) VALUES(?,?,?,?,?,?,?,?,?);
 
 selectAllMessages:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 ORDER BY modifiedDate DESC;
 
-selectAllMessagesWithDeleted:
-SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND receiver = :uid ORDER BY modifiedDate DESC;
-
-selectAllMessagesByUserId:
-SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND receiver = :uid ORDER BY modifiedDate DESC ;
+selectAllMessagesByChannelId:
+SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND channelId = :uid ORDER BY modifiedDate DESC ;
 
 deleteAllMessages:
 DELETE FROM slackMessage;
@@ -140,6 +183,9 @@ INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,use
 
 selectAllUsers:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceid ORDER BY name DESC ;
+
+selectAllUsersAndName:
+SELECT * FROM slackUser WHERE workspaceId=:workspaceid AND name LIKE '%' || :name || '%' ORDER BY name DESC ;
 
 deleteAllUsers:
 DELETE FROM slackUser;

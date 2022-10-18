@@ -84,7 +84,7 @@ val dataSourceModule = module {
       get(),
       get(SlackChannelChannelQualifier),
       get(SlackChannelDMChannelQualifier),
-      get()
+      get(), get(), get()
     )
   }
   single<SKLocalDataSourceUsers> { SKLocalDataSourceUsersImpl(get(), get(SlackUserRandomUserQualifier)) }

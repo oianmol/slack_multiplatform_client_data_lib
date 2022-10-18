@@ -93,7 +93,7 @@ selectDMChannelById:
 SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
 
 selectDMChannelByReceiverId:
-SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND receiverId = :receiverId;
+SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND (receiverId = :receiverId OR senderId = :receiverId) ;
 
 
 selectLastMessageOfChannel:

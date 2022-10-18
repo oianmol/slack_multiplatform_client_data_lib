@@ -1,5 +1,6 @@
 package dev.baseio.slackdomain.usecases.auth
 
+import dev.baseio.database.SlackDB
 import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdata.protos.KMSKUser
 import dev.baseio.slackdomain.AUTH_TOKEN
@@ -11,7 +12,8 @@ import kotlinx.serialization.json.Json
 
 class LoginUseCase(
   private val SKAuthNetworkDataSource: SKAuthNetworkDataSource,
-  private val skKeyValueData: SKKeyValueData
+  private val skKeyValueData: SKKeyValueData,
+  private val slackDB: SlackDB
 ) {
   suspend operator fun invoke(email: String, password: String, workspaceId: String) {
     val result = SKAuthNetworkDataSource.login(email, password, workspaceId).getOrThrow()
@@ -19,6 +21,14 @@ class LoginUseCase(
     val user = SKAuthNetworkDataSource.getLoggedInUser().getOrThrow().toSKUser()
     val json = Json.encodeToString(user)
     skKeyValueData.save(LOGGED_IN_USER, json)
+    with(slackDB.slackDBQueries) {
+      deleteAllMessages()
+      deleteAllUsers()
+      deleteSlackWorkspaces()
+      deleteChannelMembers()
+      deleteAllDMChannels()
+      deleteAllPublicChannels()
+    }
   }
 }
 

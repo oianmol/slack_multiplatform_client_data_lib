@@ -9,11 +9,13 @@ class UseCaseLogout(
 ) {
     operator fun invoke() {
         skKeyValueData.clear()
-        slackChannelDao.slackDBQueries.apply {
-            deleteSlackUser()
-            deleteSlackWorkspaces()
+        with(slackChannelDao.slackDBQueries) {
             deleteAllMessages()
-            deletePublicChannels()
+            deleteAllUsers()
+            deleteSlackWorkspaces()
+            deleteChannelMembers()
+            deleteAllDMChannels()
+            deleteAllPublicChannels()
         }
     }
 }

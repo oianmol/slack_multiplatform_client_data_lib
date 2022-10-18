@@ -98,6 +98,7 @@ val dataSourceModule = module {
   single<SKLocalDataSourceChannelLastMessage> {
     SlackSKLocalDataSourceChannelLastMessage(
       get(),
+      get(),
       get(SlackMessageMessageQualifier),
       get(SlackChannelChannelQualifier),
       get(SlackChannelDMChannelQualifier),

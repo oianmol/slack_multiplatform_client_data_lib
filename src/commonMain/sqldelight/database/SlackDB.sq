@@ -107,10 +107,10 @@ SELECT * FROM slackMessage
             ORDER BY channelMessage_last.received_at DESC;
 
 deleteAllPublicChannels:
-DELETE FROM skPublicChannel WHERE workspaceId=:workspaceid;
+DELETE FROM skPublicChannel;
 
 deleteAllDMChannels:
-DELETE FROM skDMChannel WHERE workspaceId=:workspaceid;
+DELETE FROM skDMChannel;
 
 CREATE TABLE IF NOT EXISTS slackChannelMember(
      uuid TEXT NOT NULL PRIMARY KEY,

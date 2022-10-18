@@ -21,4 +21,8 @@ class UseCaseFetchAllChannels(
 
 fun DomainLayerUsers.SKUser.otherUserInDMChannel(
   skChannel: DomainLayerChannels.SKChannel.SkDMChannel
-) = if (this.uuid == skChannel.receiverId) skChannel.senderId else skChannel.receiverId
+) = if (this.uuid == skChannel.receiverId) {
+  skChannel.senderId
+} else {
+  skChannel.receiverId
+}

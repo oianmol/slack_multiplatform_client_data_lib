@@ -13,6 +13,7 @@ import dev.baseio.slackdata.mapper.EntityMapper
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelLastMessage
+import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,6 +25,7 @@ class SlackSKLocalDataSourceChannelLastMessage(
   private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
   private val dmChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
+  private val skLocalDataSourceUsers: SKLocalDataSourceUsers
 ) : SKLocalDataSourceChannelLastMessage {
   override fun fetchChannelsWithLastMessage(workspaceId: String): Flow<List<DomainLayerMessages.SKLastMessage>> {
     val chatPager = slackChannelDao.slackDBQueries.selectLastMessageOfChannel(workspaceId)
@@ -42,15 +44,11 @@ class SlackSKLocalDataSourceChannelLastMessage(
         }
         val dmChannel = skDMChannel(workspaceId, channelsWithLastMessage)
         dmChannel?.let { skDMChannel ->
-          val loggedInUser = skKeyValueData.skUser()
-          val user =
-            slackChannelDao.slackDBQueries.getUser(
-              dmChannel.workspaceId,
-              getOtherUser(dmChannel, loggedInUser)
-            ).executeAsOneOrNull()
           val domainChannel = dmChannelMapper.mapToDomain(skDMChannel)
-          domainChannel.channelName = user?.name
-          domainChannel.pictureUrl = user?.avatarUrl
+          (domainChannel as DomainLayerChannels.SKChannel.SkDMChannel).populateDMChannelWithOtherUser(
+            skKeyValueData,
+            skLocalDataSourceUsers
+          )
           return@mapNotNull DomainLayerMessages.SKLastMessage(
             domainChannel,
             messagesMapper.mapToDomain(message)

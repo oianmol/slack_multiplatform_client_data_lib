@@ -41,7 +41,7 @@ class SKNetworkDataSourceReadChannelsImpl(
           this.channelsList.map {
             it.mapToDomainSkChannel()
           }
-        }
+        } +
         grpcCalls.getAllDMChannels(workspaceId, offset, limit).run {
           this.channelsList.map {
             it.mapToDomainSkChannel()

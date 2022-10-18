@@ -178,6 +178,28 @@ class GrpcCalls(
     }, fetchToken(token))
   }
 
+  suspend fun inviteUserToChannel(
+    userId: String,
+    channelId: String,
+    token: String? = skKeyValueData.get(AUTH_TOKEN)
+  ): KMSKChannelMembers {
+    return channelsStub.inviteUserToChannel(kmSKInviteUserChannel {
+      this.channelId = channelId
+      this.userId = userId
+    }, fetchToken(token))
+  }
+
+  fun listenToChangeInChannelMembers(
+    workspaceId: String,
+    memberId:String,
+    token: String? = skKeyValueData.get(AUTH_TOKEN)
+  ): Flow<KMSKChannelMemberChangeSnapshot> {
+    return channelsStub.registerChangeInChannelMembers(kmSKChannelMember {
+      this.workspaceId = workspaceId
+      this.memberId = memberId
+    }, fetchToken(token))
+  }
+
   fun listenToChangeInWorkspace(
     workspaceId: String,
     token: String? = skKeyValueData.get(AUTH_TOKEN)

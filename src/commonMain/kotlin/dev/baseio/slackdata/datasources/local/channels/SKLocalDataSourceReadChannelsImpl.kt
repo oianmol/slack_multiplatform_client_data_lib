@@ -16,7 +16,6 @@ import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -51,6 +50,10 @@ class SKLocalDataSourceReadChannelsImpl(
         }
       }
     return combine(flow, flowDMChannels) { a, b -> a + b }
+  }
+
+  override fun getChannelByReceiverId(workspaceId: String, uuid: String): SkDMChannel? {
+    return slackChannelDao.slackDBQueries.selectDMChannelByReceiverId(workspaceId,uuid).executeAsOneOrNull()
   }
 
   override fun getChannelById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
@@ -93,7 +96,7 @@ class SKLocalDataSourceReadChannelsImpl(
   }
 
   override suspend fun getChannel(request: UseCaseWorkspaceChannelRequest): DomainLayerChannels.SKChannel? {
-    return getChannelById(request.workspaceId, request.channelId)
+    return getChannelById(request.workspaceId, request.channelId!!)
   }
 
 

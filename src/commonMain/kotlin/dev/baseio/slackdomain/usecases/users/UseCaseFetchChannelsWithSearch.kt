@@ -1,5 +1,6 @@
 package dev.baseio.slackdomain.usecases.users
 
+import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceReadChannels
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.usecases.channels.UseCaseFetchAllChannels
 import dev.baseio.slackdomain.usecases.channels.UseCaseSearchChannel
@@ -8,17 +9,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-class UseCaseFetchChannelsWithSearch(private val useCaseFetchLocalUsers: UseCaseFetchLocalUsers,
-                                     private val useCaseSearchChannel: UseCaseSearchChannel
+class UseCaseFetchChannelsWithSearch(
+  private val useCaseFetchLocalUsers: UseCaseFetchLocalUsers,
+  private val useCaseSearchChannel: UseCaseSearchChannel,
+  private val skLocalDataSourceReadChannels: SKLocalDataSourceReadChannels
 ) {
   operator fun invoke(workspaceId: String, search: String): Flow<List<DomainLayerChannels.SKChannel>> {
-    val localUsers = useCaseFetchLocalUsers(workspaceId, search).map {
-      it.map { skUser ->
+    val localUsers = useCaseFetchLocalUsers(workspaceId, search).map { skUsers ->
+      skUsers.map { skUser ->
+        val dmChannel = skLocalDataSourceReadChannels.getChannelByReceiverId(workspaceId, skUser.uuid)
         DomainLayerChannels.SKChannel.SkDMChannel(
           workId = workspaceId,
-          senderId = "",
+          senderId = dmChannel?.senderId ?: "",
           receiverId = skUser.uuid,
-          uuid = "",
+          uuid = dmChannel?.uuid ?: "",
           deleted = false
         ).apply {
           channelName = skUser.name
@@ -27,24 +31,12 @@ class UseCaseFetchChannelsWithSearch(private val useCaseFetchLocalUsers: UseCase
       }
     }
 
-   val localChannels=  useCaseSearchChannel(
+    val localChannels = useCaseSearchChannel(
       UseCaseWorkspaceChannelRequest(workspaceId = workspaceId, search)
     )
 
-   return combine(localUsers,localChannels) { first, second ->
-      return@combine first.map { locaUserDmChannel ->
-        second.forEach { skChannel ->
-          if (skChannel is DomainLayerChannels.SKChannel.SkDMChannel
-            && skChannel.receiverId == locaUserDmChannel.receiverId
-          ) {
-            locaUserDmChannel.receiverId = skChannel.receiverId
-            locaUserDmChannel.senderId = skChannel.senderId
-            locaUserDmChannel.uuid = skChannel.uuid
-            locaUserDmChannel.channelId = skChannel.uuid
-          }
-        }
-        locaUserDmChannel
-      } + second
+    return combine(localUsers, localChannels) { first, second ->
+      return@combine first + second.filterIsInstance<DomainLayerChannels.SKChannel.SkGroupChannel>()
     }
   }
 }

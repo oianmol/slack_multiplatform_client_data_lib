@@ -92,6 +92,10 @@ SELECT * FROM skPublicChannel WHERE workspaceId=:workspaceid AND uuid = :channel
 selectDMChannelById:
 SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
 
+selectDMChannelByReceiverId:
+SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND receiverId = :receiverId;
+
+
 selectLastMessageOfChannel:
 SELECT * FROM slackMessage
             AS channelMessage

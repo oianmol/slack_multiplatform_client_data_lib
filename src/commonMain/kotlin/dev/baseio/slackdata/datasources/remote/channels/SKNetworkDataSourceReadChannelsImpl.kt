@@ -13,10 +13,17 @@ class SKNetworkDataSourceReadChannelsImpl(
 ) : SKNetworkDataSourceReadChannels {
 
   override fun listenToChangeInChannels(workspaceId: String): Flow<Pair<DomainLayerChannels.SKChannel?, DomainLayerChannels.SKChannel?>> {
-    return grpcCalls.listenToChangeInChannels(workspaceId).map { channel ->
+    return combine(
+      grpcCalls.listenToChangeInChannels(workspaceId),
+      grpcCalls.listenToChangeInDMChannels(workspaceId)
+    ) { public, dmChannel ->
       Pair(
-        if (channel.hasPrevious()) channel.previous.mapToDomainSkChannel() else null,
-        if (channel.hasLatest()) channel.latest.mapToDomainSkChannel() else null
+        if (public.hasPrevious()) public.previous.mapToDomainSkChannel() else null,
+        if (public.hasLatest()) public.latest.mapToDomainSkChannel() else null
+      )
+      Pair(
+        if (dmChannel.hasPrevious()) dmChannel.previous.mapToDomainSkChannel() else null,
+        if (dmChannel.hasLatest()) dmChannel.latest.mapToDomainSkChannel() else null
       )
     }.catch {
       // notify upstream for these errors
@@ -31,6 +38,11 @@ class SKNetworkDataSourceReadChannelsImpl(
     return withContext(coroutineDispatcherProvider.io) {
       kotlin.runCatching {
         grpcCalls.getPublicChannels(workspaceId, offset, limit).run {
+          this.channelsList.map {
+            it.mapToDomainSkChannel()
+          }
+        }
+        grpcCalls.getAllDMChannels(workspaceId, offset, limit).run {
           this.channelsList.map {
             it.mapToDomainSkChannel()
           }

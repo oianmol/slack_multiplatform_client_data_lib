@@ -9,7 +9,7 @@ class UseCaseFetchMessages(private val skLocalDataSourceMessages: SKLocalDataSou
   operator fun invoke(useCaseWorkspaceChannelRequest: UseCaseWorkspaceChannelRequest): Flow<List<DomainLayerMessages.SKMessage>> {
     return skLocalDataSourceMessages.streamLocalMessages(
       workspaceId = useCaseWorkspaceChannelRequest.workspaceId,
-      useCaseWorkspaceChannelRequest.channelId
+      useCaseWorkspaceChannelRequest.channelId!!
     )
   }
 }

@@ -11,7 +11,7 @@ plugins {
     id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
 }
 
-group = "dev.baseio.slackdatalib"
+group = "dev.baseio.slackclone"
 version = "1.0"
 
 
@@ -91,6 +91,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("dev.baseio.slackclone:slack_kmp_domain:1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("com.squareup.sqldelight:runtime:1.5.3")
                 implementation(Deps.Koin.core)
@@ -127,6 +128,7 @@ kotlin {
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation(Deps.AndroidX.lifecycleViewModelKtx)
+                implementation("dev.baseio.slackclone:slack_kmp_domain-android:1.0")
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
                 implementation("dev.baseio.slackdatalib:slack-multiplatform-generate-protos:1.0.0")
                 implementation("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
@@ -140,6 +142,8 @@ kotlin {
             )
             dependsOn(sqlDriverNativeMain)
             dependencies {
+                implementation("dev.baseio.slackclone:slack_kmp_domain-iosarm64:1.0")
+
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -151,6 +155,7 @@ kotlin {
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
+                implementation("dev.baseio.slackclone:slack_kmp_domain-iossimulatorarm64:1.0")
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -162,6 +167,7 @@ kotlin {
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
+                implementation("dev.baseio.slackclone:slack_kmp_domain-iosx64:1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.6.4")
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
@@ -182,6 +188,7 @@ kotlin {
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
+                implementation("dev.baseio.slackclone:slack_kmp_domain-jvm:1.0")
                 implementation("dev.baseio.slackdatalib:slack-multiplatform-generate-protos:1.0.0")
                 implementation("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")

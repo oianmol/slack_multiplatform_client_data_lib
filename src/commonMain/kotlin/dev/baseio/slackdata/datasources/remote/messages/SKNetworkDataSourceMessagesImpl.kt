@@ -1,12 +1,10 @@
 package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.GrpcCalls
-import dev.baseio.slackdata.datasources.remote.channels.mapToDomainSkChannel
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
-import dev.baseio.slackdomain.usecases.auth.toSKUser
 import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest

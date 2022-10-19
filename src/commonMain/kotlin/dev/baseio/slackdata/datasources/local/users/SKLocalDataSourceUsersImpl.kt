@@ -57,13 +57,13 @@ class SKLocalDataSourceUsersImpl(
         it.uuid,
         it.workspaceId,
         it.gender,
-        it.name,
+        it.name ?: throw Exception("Name cannot be null!"),
         it.location,
-        it.email,
-        it.username,
-        it.userSince,
-        it.phone,
-        it.avatarUrl
+        it.email ?: throw Exception("email cannot be null!"),
+        it.username ?: throw Exception("username cannot be null!"),
+        it.userSince ?: throw Exception("userSince cannot be null!"),
+        it.phone ?: throw Exception("phone cannot be null!"),
+        it.avatarUrl ?: throw Exception("avatarUrl cannot be null!")
       )
     }
 

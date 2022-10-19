@@ -6,23 +6,62 @@ import dev.baseio.slackdata.protos.KMSKUser
 import dev.baseio.slackdata.protos.kmSKAuthUser
 import dev.baseio.slackdata.protos.kmSKUser
 import dev.baseio.slackdomain.datasources.remote.auth.SKAuthNetworkDataSource
+import dev.baseio.slackdomain.model.users.DomainLayerUsers
 
 class SKAuthNetworkDataSourceImpl(private val grpcCalls: GrpcCalls) : SKAuthNetworkDataSource {
-  override suspend fun login(email: String, password: String, workspaceId: String): Result<KMSKAuthResult> {
+  override suspend fun login(
+    email: String,
+    password: String,
+    workspaceId: String
+  ): Result<DomainLayerUsers.SKAuthResult> {
     return kotlin.runCatching {
-      grpcCalls.login(kmSKAuthUser {
+      val result = grpcCalls.login(kmSKAuthUser {
         this.email = email
         this.password = password
         this.user = kmSKUser {
           this.workspaceId = workspaceId
         }
       })
+      DomainLayerUsers.SKAuthResult(
+        result.token,
+        result.refreshToken,
+        DomainLayerUsers.SKStatus(result.status.information, result.status.statusCode)
+      )
     }
   }
 
-  override suspend fun getLoggedInUser(): Result<KMSKUser> {
+  override suspend fun register(skAuthUser: DomainLayerUsers.SkAuthUser): Result<DomainLayerUsers.SKAuthResult> {
     return kotlin.runCatching {
-      grpcCalls.currentLoggedInUser()
+      val result = grpcCalls.register(kmSKAuthUser {
+        this.email = email
+        this.password = password
+        this.user = kmSKUser {
+          this.workspaceId = workspaceId
+        }
+      })
+      DomainLayerUsers.SKAuthResult(
+        result.token,
+        result.refreshToken,
+        DomainLayerUsers.SKStatus(result.status.information, result.status.statusCode)
+      )
+    }
+  }
+
+  override suspend fun getLoggedInUser(): Result<DomainLayerUsers.SKUser> {
+    return kotlin.runCatching {
+      val result = grpcCalls.currentLoggedInUser()
+      DomainLayerUsers.SKUser(
+        result.uuid,
+        result.workspaceId,
+        result.gender,
+        result.name,
+        result.location,
+        result.email,
+        result.username,
+        result.userSince,
+        result.phone,
+        result.avatarUrl
+      )
     }
   }
 }

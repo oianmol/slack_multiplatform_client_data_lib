@@ -56,8 +56,9 @@ class SKLocalDataSourceReadChannelsImpl(
     }
   }
 
-  override fun getChannelByReceiverId(workspaceId: String, uuid: String): SkDMChannel? {
-    return slackChannelDao.slackDBQueries.selectDMChannelByReceiverId(workspaceId, uuid).executeAsOneOrNull()
+  override fun getChannelByReceiverId(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel.SkDMChannel? {
+    val channel = slackChannelDao.slackDBQueries.selectDMChannelByReceiverId(workspaceId, uuid).executeAsOneOrNull()
+    return channel?.let { directChannelMapper.mapToDomain(it) } as DomainLayerChannels.SKChannel.SkDMChannel?
   }
 
   override fun getChannelById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {

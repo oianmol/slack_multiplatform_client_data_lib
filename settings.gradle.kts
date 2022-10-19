@@ -19,5 +19,5 @@ pluginManagement {
 
 include(":protos")
 
-rootProject.name = "slack_multiplatform_client_data_lib"
+rootProject.name = "slack_kmp_data"
 

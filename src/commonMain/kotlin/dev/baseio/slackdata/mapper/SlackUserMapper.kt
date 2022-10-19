@@ -15,10 +15,16 @@ class SlackUserMapper : EntityMapper<DomainLayerUsers.SKUser, SlackUser> {
 
 fun DomainLayerUsers.SKUser.toDBSlackUser(): SlackUser {
   return SlackUser(
-    uuid, workspaceId, gender, name, location, email, username,
-    this.userSince,
-    phone,
-    avatarUrl
+    uuid,
+    workspaceId,
+    gender,
+    name ?: throw Exception("name cannot be null"),
+    location,
+    email ?: throw Exception("email cannot be null"),
+    username ?: throw Exception("username cannot be null"),
+    this.userSince ?: throw Exception("userSince cannot be null"),
+    phone ?: throw Exception("phone cannot be null"),
+    avatarUrl ?: throw Exception("avatarUrl cannot be null")
   )
 }
 

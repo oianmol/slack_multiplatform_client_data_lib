@@ -42,5 +42,4 @@ val useCaseModule = module {
   single { UseCaseFetchChannelsWithSearch(get(), get(), get()) }
   single { UseCaseCurrentUser(get()) }
   single { UseCaseCreateWorkspace(get(), get(), get(), get()) }
-  single { UseCaseRegisterUser(get(), get()) }
 }

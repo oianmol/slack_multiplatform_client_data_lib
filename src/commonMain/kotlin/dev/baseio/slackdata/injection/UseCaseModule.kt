@@ -27,7 +27,7 @@ val useCaseModule = module {
   single { UseCaseFetchAndUpdateChangeInChannels(get(), get()) }
   single { UseCaseFetchAndSaveMessages(get(), get()) }
   single { UseCaseSendMessage(get(), get()) }
-  single { UseCaseFetchMessages(get()) }
+  single { UseCaseStreamLocalMessages(get()) }
   single { UseCaseRegisterUser(get(), get()) }
   single { UseCaseFetchAllChannels(get()) }
   single { UseCaseCreateChannel(get(), get()) }

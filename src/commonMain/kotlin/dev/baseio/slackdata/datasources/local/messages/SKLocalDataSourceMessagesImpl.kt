@@ -11,13 +11,41 @@ import dev.baseio.slackdomain.datasources.local.messages.SKLocalDataSourceMessag
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
-class SlackSKLocalDataSourceMessagesImpl constructor(
+class SKLocalDataSourceMessagesImpl constructor(
   private val slackMessageDao: SlackDB,
   private val entityMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
   private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider
 ) : SKLocalDataSourceMessages {
-  override fun streamLocalMessages(workspaceId: String, userId: String): Flow<List<DomainLayerMessages.SKMessage>> {
-    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(workspaceId, userId)
+
+  override suspend fun getLocalMessages(
+    workspaceId: String,
+    userId: String,
+    limit: Int,
+    offset: Int
+  ): List<DomainLayerMessages.SKMessage> {
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+      workspaceId,
+      userId,
+      limit.toLong(),
+      offset.toLong()
+    ).executeAsList().run {
+      this
+        .map { slackMessage -> entityMapper.mapToDomain(slackMessage) }
+    }
+  }
+
+  override fun streamLocalMessages(
+    workspaceId: String,
+    userId: String,
+    limit: Int,
+    offset: Int
+  ): Flow<List<DomainLayerMessages.SKMessage>> {
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+      workspaceId,
+      userId,
+      limit.toLong(),
+      offset.toLong()
+    )
       .asFlow()
       .flowOn(coroutineMainDispatcherProvider.io)
       .mapToList(coroutineMainDispatcherProvider.default)

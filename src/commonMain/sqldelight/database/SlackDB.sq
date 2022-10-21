@@ -160,7 +160,7 @@ selectAllMessages:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 ORDER BY modifiedDate DESC;
 
 selectAllMessagesByChannelId:
-SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND channelId = :uid ORDER BY modifiedDate DESC ;
+SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND channelId = :uid ORDER BY createdDate DESC LIMIT :limit OFFSET :offset;
 
 deleteAllMessages:
 DELETE FROM slackMessage;

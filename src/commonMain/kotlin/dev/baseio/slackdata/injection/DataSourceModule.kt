@@ -6,7 +6,7 @@ import dev.baseio.slackdata.datasources.local.channels.SKLocalDataSourceChannelM
 import dev.baseio.slackdata.datasources.local.channels.SKLocalDataSourceReadChannelsImpl
 import dev.baseio.slackdata.datasources.local.channels.SKLocalDataSourceCreateChannelsImpl
 import dev.baseio.slackdata.datasources.local.channels.SlackSKLocalDataSourceChannelLastMessage
-import dev.baseio.slackdata.datasources.local.messages.SlackSKLocalDataSourceMessagesImpl
+import dev.baseio.slackdata.datasources.local.messages.SKLocalDataSourceMessagesImpl
 import dev.baseio.slackdata.datasources.local.users.SKLocalDataSourceCreateUsersImpl
 import dev.baseio.slackdata.datasources.local.users.SKLocalDataSourceUsersImpl
 import dev.baseio.slackdata.datasources.local.workspaces.SKLocalDataSourceWriteWorkspacesImpl
@@ -109,7 +109,7 @@ val dataSourceModule = module {
   }
   single<SKLocalDataSourceUsers> { SKLocalDataSourceUsersImpl(get(), get(SlackUserRandomUserQualifier)) }
   single<SKLocalDataSourceMessages> {
-    SlackSKLocalDataSourceMessagesImpl(
+    SKLocalDataSourceMessagesImpl(
       get(),
       get(SlackMessageMessageQualifier),
       get()

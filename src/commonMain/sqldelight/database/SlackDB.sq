@@ -159,8 +159,12 @@ INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,sender,cr
 selectAllMessages:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 ORDER BY modifiedDate DESC;
 
-selectAllMessagesByChannelId:
+selectAllMessagesByChannelIdPaginated:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND channelId = :uid ORDER BY createdDate DESC LIMIT :limit OFFSET :offset;
+
+selectAllMessagesByChannelId:
+SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 AND channelId = :uid ORDER BY createdDate DESC;
+
 
 deleteAllMessages:
 DELETE FROM slackMessage;

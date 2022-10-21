@@ -17,13 +17,38 @@ class SKLocalDataSourceMessagesImpl constructor(
   private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider
 ) : SKLocalDataSourceMessages {
 
+  override suspend fun getLocalMessages(workspaceId: String, userId: String): List<DomainLayerMessages.SKMessage> {
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+      workspaceId,
+      userId,
+    ).executeAsList().run {
+      this
+        .map { slackMessage -> entityMapper.mapToDomain(slackMessage) }
+    }
+  }
+
+  override fun streamLocalMessages(workspaceId: String, userId: String): Flow<List<DomainLayerMessages.SKMessage>> {
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+      workspaceId,
+      userId,
+    )
+      .asFlow()
+      .flowOn(coroutineMainDispatcherProvider.io)
+      .mapToList(coroutineMainDispatcherProvider.default)
+      .map { slackMessages ->
+        slackMessages
+          .map { slackMessage -> entityMapper.mapToDomain(slackMessage) }
+      }
+      .flowOn(coroutineMainDispatcherProvider.default)
+  }
+
   override suspend fun getLocalMessages(
     workspaceId: String,
     userId: String,
     limit: Int,
     offset: Int
   ): List<DomainLayerMessages.SKMessage> {
-    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelIdPaginated(
       workspaceId,
       userId,
       limit.toLong(),
@@ -40,7 +65,7 @@ class SKLocalDataSourceMessagesImpl constructor(
     limit: Int,
     offset: Int
   ): Flow<List<DomainLayerMessages.SKMessage>> {
-    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelId(
+    return slackMessageDao.slackDBQueries.selectAllMessagesByChannelIdPaginated(
       workspaceId,
       userId,
       limit.toLong(),

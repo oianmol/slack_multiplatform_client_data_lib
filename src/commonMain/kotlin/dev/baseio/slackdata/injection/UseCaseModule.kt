@@ -30,7 +30,7 @@ val useCaseModule = module {
   single { UseCaseStreamLocalMessages(get()) }
   single { UseCaseRegisterUser(get(), get()) }
   single { UseCaseFetchAllChannels(get()) }
-  single { UseCaseCreateChannel(get(), get()) }
+  single { UseCaseCreateChannel(get(), get(), get()) }
   single { UseCaseGetChannel(get()) }
   single { UseCaseFetchChannelCount(get()) }
   single { UseCaseInviteUserToChannel(get()) }

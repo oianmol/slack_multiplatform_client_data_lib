@@ -11,35 +11,35 @@ import dev.baseio.slackdomain.usecases.workspaces.*
 import org.koin.dsl.module
 
 val useCaseModule = module {
-  single { LoginUseCase(get(), get(), get()) }
-  single { UseCaseGetChannelMembers(get(), get()) }
-  single { FindWorkspacesUseCase(get()) }
-  single { UseCaseFetchAndSaveWorkspaces(get(), get()) }
-  single { UseCaseFetchAndSaveChannelMembers(get(), get()) }
-  single { UseCaseGetWorkspaces(get()) }
-  single { UseCaseSetLastSelectedWorkspace(get()) }
-  single { UseCaseFetchRecentChannels(get()) }
-  single { UseCaseGetSelectedWorkspace(get()) }
-  single { UseCaseFetchAndSaveChannels(get(), get()) }
-  single { UseCaseFetchChannelsWithLastMessage(get()) }
-  single { UseCaseFetchAndUpdateChangeInMessages(get(), get()) }
-  single { UseCaseFetchAndUpdateChangeInUsers(get(), get()) }
-  single { UseCaseFetchAndUpdateChangeInChannels(get(), get()) }
-  single { UseCaseFetchAndSaveMessages(get(), get()) }
-  single { UseCaseSendMessage(get(), get()) }
-  single { UseCaseStreamLocalMessages(get()) }
-  single { UseCaseRegisterUser(get(), get()) }
-  single { UseCaseFetchAllChannels(get()) }
-  single { UseCaseCreateChannel(get(), get(), get()) }
-  single { UseCaseGetChannel(get()) }
-  single { UseCaseFetchChannelCount(get()) }
-  single { UseCaseInviteUserToChannel(get()) }
-  single { UseCaseSearchChannel(get()) }
-  single { UseCaseFetchLocalUsers(get()) }
-  single { UseCaseFindChannelById(get(), get(), get()) }
-  single { UseCaseFetchAndSaveUsers(get(), get()) }
-  single { UseCaseLogout(get(), get()) }
-  single { UseCaseFetchChannelsWithSearch(get(), get(), get(), get()) }
-  single { UseCaseCurrentUser(get()) }
-  single { UseCaseCreateWorkspace(get(), get(), get(), get()) }
+  factory { LoginUseCase(get(), get(), get()) }
+  factory { UseCaseGetChannelMembers(get(), get()) }
+  factory { FindWorkspacesUseCase(get()) }
+  factory { UseCaseFetchAndSaveWorkspaces(get(), get()) }
+  factory { UseCaseFetchAndSaveChannelMembers(get(), get()) }
+  factory { UseCaseGetWorkspaces(get()) }
+  factory { UseCaseSetLastSelectedWorkspace(get()) }
+  factory { UseCaseFetchRecentChannels(get()) }
+  factory { UseCaseGetSelectedWorkspace(get()) }
+  factory { UseCaseFetchAndSaveChannels(get(), get()) }
+  factory { UseCaseFetchChannelsWithLastMessage(get()) }
+  factory { UseCaseFetchAndUpdateChangeInMessages(get(), get()) }
+  factory { UseCaseFetchAndUpdateChangeInUsers(get(), get()) }
+  factory { UseCaseFetchAndUpdateChangeInChannels(get(), get()) }
+  factory { UseCaseFetchAndSaveMessages(get(), get()) }
+  factory { UseCaseSendMessage(get(), get()) }
+  factory { UseCaseStreamLocalMessages(get()) }
+  factory { UseCaseRegisterUser(get(), get()) }
+  factory { UseCaseFetchAllChannels(get()) }
+  factory { UseCaseCreateChannel(get(), get(), get()) }
+  factory { UseCaseGetChannel(get()) }
+  factory { UseCaseFetchChannelCount(get()) }
+  factory { UseCaseInviteUserToChannel(get()) }
+  factory { UseCaseSearchChannel(get()) }
+  factory { UseCaseFetchLocalUsers(get()) }
+  factory { UseCaseFindChannelById(get(), get(), get()) }
+  factory { UseCaseFetchAndSaveUsers(get(), get()) }
+  factory { UseCaseLogout(get(), get()) }
+  factory { UseCaseFetchChannelsWithSearch(get(), get(), get(), get()) }
+  factory { UseCaseCurrentUser(get()) }
+  factory { UseCaseCreateWorkspace(get(), get(), get(), get()) }
 }

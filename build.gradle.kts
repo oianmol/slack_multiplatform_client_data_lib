@@ -62,10 +62,6 @@ object Deps {
         const val android = "io.insert-koin:koin-android:${Versions.koin}"
     }
 
-    object AndroidX {
-        const val lifecycleViewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
-    }
-
 
 }
 
@@ -127,7 +123,6 @@ kotlin {
                 implementation(Deps.Koin.android)
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.SqlDelight.androidDriver)
-                implementation(Deps.AndroidX.lifecycleViewModelKtx)
                 implementation("dev.baseio.slackclone:slack_kmp_domain-android:1.0")
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
                 api("dev.baseio.slackdatalib:slack-multiplatform-generate-protos:1.0.0")

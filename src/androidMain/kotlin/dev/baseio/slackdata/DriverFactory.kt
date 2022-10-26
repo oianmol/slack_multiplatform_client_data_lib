@@ -12,4 +12,8 @@ actual class DriverFactory(private val context: Context) {
   actual suspend fun createDriverBlocking(schema: SqlDriver.Schema): SqlDriver {
     return AndroidSqliteDriver(schema, context, "SlackDB.db")
   }
+
+  actual fun createInMemorySqlDriver(schema: SqlDriver.Schema): SqlDriver {
+    return AndroidSqliteDriver(schema, context, null)
+  }
 }

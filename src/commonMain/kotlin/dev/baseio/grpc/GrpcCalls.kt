@@ -1,19 +1,18 @@
 package dev.baseio.grpc
 
 
-import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdata.protos.*
 import dev.baseio.slackdomain.AUTH_TOKEN
+import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMChannel
 import kotlinx.coroutines.flow.Flow
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMMetadata
 
-
 class GrpcCalls(
   private val address: String = "localhost",
   private val port: Int = 17600,
-  private val skKeyValueData: SKKeyValueData
+  private val skKeyValueData: SKLocalKeyValueSource
 ) {
   companion object {
     const val AUTHENTICATION_TOKEN_KEY = "Authorization"

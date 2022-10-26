@@ -5,11 +5,11 @@ import database.SkDMChannel
 import database.SkPublicChannel
 import database.SlackMessage
 import dev.baseio.database.SlackDB
-import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
+import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelLastMessage
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.map
 
 class SlackSKLocalDataSourceChannelLastMessage(
   private val slackChannelDao: SlackDB,
-  private val skKeyValueData: SKKeyValueData,
+  private val skKeyValueData: SKLocalKeyValueSource,
   private val messagesMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
   private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
   private val dmChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,

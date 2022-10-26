@@ -3,12 +3,12 @@ package dev.baseio.slackdata.datasources.local.channels
 import database.SkDMChannel
 import database.SkPublicChannel
 import dev.baseio.database.SlackDB
-import dev.baseio.slackdata.SKKeyValueData
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
 import dev.baseio.slackdomain.LOGGED_IN_USER
+import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceReadChannels
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
@@ -25,7 +25,7 @@ class SKLocalDataSourceReadChannelsImpl(
   private val slackChannelDao: SlackDB,
   private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
   private val directChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
-  private val skKeyValueData: SKKeyValueData,
+  private val skKeyValueData: SKLocalKeyValueSource,
   private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider,
   private val skLocalDataSourceUsers: SKLocalDataSourceUsers
 ) : SKLocalDataSourceReadChannels {
@@ -131,7 +131,7 @@ class SKLocalDataSourceReadChannelsImpl(
 }
 
 fun DomainLayerChannels.SKChannel.SkDMChannel.populateDMChannelWithOtherUser(
-  skKeyValueData: SKKeyValueData,
+  skKeyValueData: SKLocalKeyValueSource,
   skLocalDataSourceUsers: SKLocalDataSourceUsers
 ) {
   val loggedInUser = skKeyValueData.skUser()
@@ -143,6 +143,6 @@ fun DomainLayerChannels.SKChannel.SkDMChannel.populateDMChannelWithOtherUser(
   }
 }
 
-fun SKKeyValueData.skUser(): DomainLayerUsers.SKUser {
+fun SKLocalKeyValueSource.skUser(): DomainLayerUsers.SKUser {
   return Json.decodeFromString(this.get(LOGGED_IN_USER)!!)
 }

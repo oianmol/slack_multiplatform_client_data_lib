@@ -22,11 +22,6 @@ object Jvm {
     val target = JavaVersion.VERSION_1_8
 }
 
-object Versions {
-    const val koin = "3.1.4"
-}
-
-
 object Deps {
 
     object Kotlinx {
@@ -53,14 +48,7 @@ object Deps {
         const val nativeDriver = "com.squareup.sqldelight:native-driver:1.5.3"
         const val core = "com.squareup.sqldelight:runtime:1.5.3"
     }
-
-
-    object Koin {
-        const val core = "io.insert-koin:koin-core:${Versions.koin}"
-        const val core_jvm = "io.insert-koin:koin-core-jvm:${Versions.koin}"
-        const val test = "io.insert-koin:koin-test:${Versions.koin}"
-        const val android = "io.insert-koin:koin-android:${Versions.koin}"
-    }
+    
 
 
 }
@@ -90,12 +78,10 @@ kotlin {
                 implementation("dev.baseio.slackclone:slack_kmp_domain:1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("com.squareup.sqldelight:runtime:1.5.3")
-                implementation(Deps.Koin.core)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
                 implementation(Deps.Kotlinx.datetime)
                 implementation(Deps.SqlDelight.core)
                 implementation(Deps.Kotlinx.coroutinesCore)
-                implementation(Deps.Koin.core)
                 implementation(kotlin("stdlib-common"))
                 implementation("io.github.timortel:grpc-multiplatform-lib:0.2.2")
             }
@@ -111,16 +97,14 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(Deps.Koin.test)
                 implementation(kotlin("test"))
             }
         }
         val androidMain by getting {
             kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/androidMain/kotlin").canonicalPath,
+                projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Deps.Koin.android)
                 implementation(Deps.Kotlinx.coroutinesCore)
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation("dev.baseio.slackclone:slack_kmp_domain-android:1.0")
@@ -133,7 +117,7 @@ kotlin {
         }
         val iosArm64Main by getting {
             kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosArm64Main/kotlin").canonicalPath,
+                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
             )
             dependsOn(sqlDriverNativeMain)
             dependencies {
@@ -145,7 +129,7 @@ kotlin {
         }
         val iosSimulatorArm64Main by getting {
             kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosSimulatorArm64Main/kotlin").canonicalPath,
+                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
             )
             dependsOn(sqlDriverNativeMain)
 
@@ -157,7 +141,7 @@ kotlin {
         }
         val iosX64Main by getting {
             kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosX64Main/kotlin").canonicalPath,
+                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
             )
             dependsOn(sqlDriverNativeMain)
 
@@ -188,7 +172,6 @@ kotlin {
                 implementation("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
-                implementation(Deps.Koin.core_jvm)
             }
         }
     }

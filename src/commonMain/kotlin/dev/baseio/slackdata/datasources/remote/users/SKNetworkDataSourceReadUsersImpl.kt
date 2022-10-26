@@ -1,6 +1,6 @@
 package dev.baseio.slackdata.datasources.remote.users
 
-import dev.baseio.grpc.GrpcCalls
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.datasources.remote.messages.toDomainLayerMessage
 import dev.baseio.slackdata.protos.KMSKUser
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.withContext
 
 class SKNetworkDataSourceReadUsersImpl(
-  private val grpcCalls: GrpcCalls,
+  private val grpcCalls: IGrpcCalls,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKNetworkDataSourceReadUsers {
   override suspend fun fetchUsers(workspaceId: String): Result<List<DomainLayerUsers.SKUser>> {

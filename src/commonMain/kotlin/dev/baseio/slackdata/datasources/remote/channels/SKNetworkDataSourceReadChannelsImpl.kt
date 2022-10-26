@@ -1,6 +1,6 @@
 package dev.baseio.slackdata.datasources.remote.channels
 
-import dev.baseio.grpc.GrpcCalls
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkDataSourceReadChannels
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
 class SKNetworkDataSourceReadChannelsImpl(
-  private val grpcCalls: GrpcCalls,
+  private val grpcCalls: IGrpcCalls,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKNetworkDataSourceReadChannels {
 

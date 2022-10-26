@@ -1,10 +1,10 @@
 package dev.baseio.slackdata.datasources.remote.channels
 
-import dev.baseio.grpc.GrpcCalls
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkSourceChannel
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 
-class SKNetworkSourceChannelImpl(private val grpcCalls: GrpcCalls) : SKNetworkSourceChannel {
+class SKNetworkSourceChannelImpl(private val grpcCalls: IGrpcCalls) : SKNetworkSourceChannel {
   override suspend fun inviteUserToChannel(
     userId: String,
     channelId: String

@@ -1,14 +1,12 @@
 package dev.baseio.slackdata.datasources.remote.auth
 
-import dev.baseio.grpc.GrpcCalls
-import dev.baseio.slackdata.protos.KMSKAuthResult
-import dev.baseio.slackdata.protos.KMSKUser
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.protos.kmSKAuthUser
 import dev.baseio.slackdata.protos.kmSKUser
 import dev.baseio.slackdomain.datasources.remote.auth.SKAuthNetworkDataSource
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 
-class SKAuthNetworkDataSourceImpl(private val grpcCalls: GrpcCalls) : SKAuthNetworkDataSource {
+class SKAuthNetworkDataSourceImpl(private val grpcCalls: IGrpcCalls) : SKAuthNetworkDataSource {
   override suspend fun login(
     email: String,
     password: String,

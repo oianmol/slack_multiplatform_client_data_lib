@@ -1,6 +1,6 @@
 package dev.baseio.slackdata.datasources.remote.workspaces
 
-import dev.baseio.grpc.GrpcCalls
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.protos.kmSKAuthUser
 import dev.baseio.slackdata.protos.kmSKCreateWorkspaceRequest
 import dev.baseio.slackdata.protos.kmSKUser
@@ -8,7 +8,7 @@ import dev.baseio.slackdata.protos.kmSKWorkspace
 import dev.baseio.slackdomain.datasources.remote.workspaces.SKNetworkSourceWorkspaces
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 
-class SKNetworkSourceWorkspacesImpl(private val grpcCalls: GrpcCalls) : SKNetworkSourceWorkspaces {
+class SKNetworkSourceWorkspacesImpl(private val grpcCalls: IGrpcCalls) : SKNetworkSourceWorkspaces {
   override suspend fun saveWorkspace(email: String, password: String, domain: String): DomainLayerUsers.SKAuthResult {
     return kotlin.runCatching {
       val result = grpcCalls.saveWorkspace(kmskCreateWorkspaceRequest(email, password, domain))

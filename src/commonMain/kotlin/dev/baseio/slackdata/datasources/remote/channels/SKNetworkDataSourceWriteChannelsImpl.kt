@@ -1,6 +1,6 @@
 package dev.baseio.slackdata.datasources.remote.channels
 
-import dev.baseio.grpc.GrpcCalls
+import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.protos.KMSKChannel
 import dev.baseio.slackdata.protos.KMSKDMChannel
 import dev.baseio.slackdata.protos.kmSKChannel
@@ -11,7 +11,7 @@ import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import kotlinx.coroutines.withContext
 
 class SKNetworkDataSourceWriteChannelsImpl(
-  private val grpcCalls: GrpcCalls,
+  private val grpcCalls: IGrpcCalls,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKNetworkDataSourceWriteChannels {
   override suspend fun createChannel(params: DomainLayerChannels.SKChannel): Result<DomainLayerChannels.SKChannel> {

@@ -41,8 +41,16 @@ class GrpcCalls(
         KMUsersServiceStub(grpcChannel)
     }
 
+    val qrCodeStub by lazy {
+        KMQrCodeServiceStub(grpcChannel)
+    }
+
     val messagingStub by lazy {
         KMMessagesServiceStub(grpcChannel)
+    }
+
+    override suspend fun getQrCodeResponse(): KMSKQrCodeResponse {
+        return qrCodeStub.generateQRCode(kmSKQrCodeGenerator {  })
     }
 
     override suspend fun getUsersForWorkspaceId(workspace: String, token: String?): KMSKUsers {
@@ -237,6 +245,8 @@ class GrpcCalls(
 
 interface IGrpcCalls {
     val skKeyValueData: SKLocalKeyValueSource
+
+    suspend fun getQrCodeResponse(): KMSKQrCodeResponse
 
     suspend fun getUsersForWorkspaceId(workspace: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUsers
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser

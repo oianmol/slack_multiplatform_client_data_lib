@@ -18,131 +18,147 @@ import dev.baseio.slackdomain.usecases.channels.otherUserInDMChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class SKLocalDataSourceReadChannelsImpl(
-  private val slackChannelDao: SlackDB,
-  private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
-  private val directChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
-  private val skKeyValueData: SKLocalKeyValueSource,
-  private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider,
-  private val skLocalDataSourceUsers: SKLocalDataSourceUsers
+    private val slackChannelDao: SlackDB,
+    private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
+    private val directChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
+    private val skKeyValueData: SKLocalKeyValueSource,
+    private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider,
+    private val skLocalDataSourceUsers: SKLocalDataSourceUsers
 ) : SKLocalDataSourceReadChannels {
 
-  override fun fetchChannelsOrByName(workspaceId: String, params: String?): Flow<List<DomainLayerChannels.SKChannel>> {
-    val flow = publicChannels(params, workspaceId)
+    override fun fetchChannelsOrByName(
+        workspaceId: String,
+        params: String?
+    ): Flow<List<DomainLayerChannels.SKChannel>> {
+        val flow = publicChannels(params, workspaceId)
 
-    val flowDMChannels = allDmChannelsFlow(workspaceId)
-    return combine(flow, flowDMChannels) { a, b -> a + b }
-  }
-
-  private fun publicChannels(
-    params: String?,
-    workspaceId: String
-  ) = kotlin.run {
-    params?.takeIf { it.isNotEmpty() }?.let {
-      slackChannelDao.slackDBQueries.selectAllPublicChannelsByName(workspaceId, params)
-        .asFlow()
-        .mapToList(coroutineMainDispatcherProvider.default)
-
-    } ?: run {
-      slackChannelDao.slackDBQueries.selectAllPublicChannels(workspaceId).asFlow()
-        .mapToList(coroutineMainDispatcherProvider.default)
+        val flowDMChannels = allDmChannelsFlow(workspaceId)
+        return combine(flow, flowDMChannels) { a, b -> a + b }
     }
-  }.map { skPublicChannels ->
-    skPublicChannels.map { skPublicChannel ->
-      publicChannelMapper.mapToDomain(skPublicChannel)
-    }
-  }
 
-  override fun getChannelByReceiverId(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel.SkDMChannel? {
-    val channel = slackChannelDao.slackDBQueries.selectDMChannelByReceiverId(workspaceId, uuid).executeAsOneOrNull()
-    return channel?.let { directChannelMapper.mapToDomain(it) } as DomainLayerChannels.SKChannel.SkDMChannel?
-  }
+    private fun publicChannels(
+        params: String?,
+        workspaceId: String
+    ) = kotlin.run {
+        params?.takeIf { it.isNotEmpty() }?.let {
+            slackChannelDao.slackDBQueries.selectAllPublicChannelsByName(workspaceId, params)
+                .asFlow()
+                .mapToList(coroutineMainDispatcherProvider.default)
 
-  override fun getChannelByReceiverIdAndSenderId(
-    workspaceId: String,
-    receiverId: String,
-    senderId: String
-  ): DomainLayerChannels.SKChannel.SkDMChannel? {
-    val channel = slackChannelDao.slackDBQueries.selectDMChannelByReceiverIdAndSenderId(workspaceId, receiverId,senderId).executeAsOneOrNull()
-    return channel?.let { directChannelMapper.mapToDomain(it) } as DomainLayerChannels.SKChannel.SkDMChannel?
-  }
-
-  override fun getChannelById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
-    return kotlin.run {
-      slackChannelDao.slackDBQueries.selectPublicChannelById(workspaceId, uuid).executeAsOneOrNull()?.let {
-        publicChannelMapper.mapToDomain(it)
-      }
-        ?: slackChannelDao.slackDBQueries.selectDMChannelById(workspaceId, uuid).executeAsOneOrNull()?.let {
-          directChannelMapper.mapToDomain(it)
+        } ?: run {
+            slackChannelDao.slackDBQueries.selectAllPublicChannels(workspaceId).asFlow()
+                .mapToList(coroutineMainDispatcherProvider.default)
         }
-    }.run {
-      if (this is DomainLayerChannels.SKChannel.SkDMChannel) {
-        this.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
-      }
-      this
-    }
-  }
-
-  override suspend fun channelCount(workspaceId: String): Long {
-    return slackChannelDao.slackDBQueries.countPublicChannels(workspaceId).executeAsOne()
-  }
-
-  override fun fetchAllChannels(workspaceId: String): Flow<List<DomainLayerChannels.SKChannel>> {
-    val publicFlow: Flow<List<DomainLayerChannels.SKChannel>> = allPublicChannelsFlow(workspaceId)
-    val dmFlow: Flow<List<DomainLayerChannels.SKChannel>> = allDmChannelsFlow(workspaceId)
-
-    return combine(publicFlow, dmFlow) { a, b ->
-      a + b
-    }
-  }
-
-  private fun allPublicChannelsFlow(workspaceId: String) =
-    slackChannelDao.slackDBQueries.selectAllPublicChannels(workspaceId).asFlow()
-      .mapToList(coroutineMainDispatcherProvider.default)
-      .map { skPublicChannels ->
+    }.map { skPublicChannels ->
         skPublicChannels.map { skPublicChannel ->
-          publicChannelMapper.mapToDomain(skPublicChannel)
+            publicChannelMapper.mapToDomain(skPublicChannel)
         }
-      }
+    }
 
-  private fun allDmChannelsFlow(workspaceId: String) =
-    slackChannelDao.slackDBQueries.selectAllDMChannels(workspaceId).asFlow()
-      .mapToList(coroutineMainDispatcherProvider.default).map {
-        it.map { skDMChannel ->
-          directChannelMapper.mapToDomain(skDMChannel)
+    override suspend fun getChannelByReceiverId(
+        workspaceId: String,
+        uuid: String
+    ): DomainLayerChannels.SKChannel.SkDMChannel? {
+        return withContext(coroutineMainDispatcherProvider.io) {
+            val channel =
+                slackChannelDao.slackDBQueries.selectDMChannelByReceiverId(workspaceId, uuid).executeAsOneOrNull()
+            channel?.let { directChannelMapper.mapToDomain(it) } as DomainLayerChannels.SKChannel.SkDMChannel?
         }
-      }.map { skChannelList ->
-        skChannelList.map { skChannel ->
-          if (skChannel is DomainLayerChannels.SKChannel.SkDMChannel) {
-            skChannel.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
-          }
-          skChannel
-        }
-      }
+    }
 
-  override suspend fun getChannel(request: UseCaseWorkspaceChannelRequest): DomainLayerChannels.SKChannel? {
-    return getChannelById(request.workspaceId, request.channelId!!)
-  }
+    override suspend fun getChannelByReceiverIdAndSenderId(
+        workspaceId: String,
+        receiverId: String,
+        senderId: String
+    ): DomainLayerChannels.SKChannel.SkDMChannel? {
+        return withContext(coroutineMainDispatcherProvider.io) {
+            val channel =
+                slackChannelDao.slackDBQueries.selectDMChannelByReceiverIdAndSenderId(workspaceId, receiverId, senderId)
+                    .executeAsOneOrNull()
+            channel?.let { directChannelMapper.mapToDomain(it) } as DomainLayerChannels.SKChannel.SkDMChannel?
+        }
+    }
+
+    override suspend fun getChannelById(workspaceId: String, uuid: String): DomainLayerChannels.SKChannel? {
+        return withContext(coroutineMainDispatcherProvider.io) {
+            kotlin.run {
+                slackChannelDao.slackDBQueries.selectPublicChannelById(workspaceId, uuid).executeAsOneOrNull()?.let {
+                    publicChannelMapper.mapToDomain(it)
+                }
+                    ?: slackChannelDao.slackDBQueries.selectDMChannelById(workspaceId, uuid).executeAsOneOrNull()?.let {
+                        directChannelMapper.mapToDomain(it)
+                    }
+            }.run {
+                if (this is DomainLayerChannels.SKChannel.SkDMChannel) {
+                    this.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
+                }
+                this
+            }
+        }
+    }
+
+    override suspend fun channelCount(workspaceId: String): Long {
+        return slackChannelDao.slackDBQueries.countPublicChannels(workspaceId).executeAsOne()
+    }
+
+    override fun fetchAllChannels(workspaceId: String): Flow<List<DomainLayerChannels.SKChannel>> {
+        val publicFlow: Flow<List<DomainLayerChannels.SKChannel>> = allPublicChannelsFlow(workspaceId)
+        val dmFlow: Flow<List<DomainLayerChannels.SKChannel>> = allDmChannelsFlow(workspaceId)
+
+        return combine(publicFlow, dmFlow) { a, b ->
+            a + b
+        }
+    }
+
+    private fun allPublicChannelsFlow(workspaceId: String) =
+        slackChannelDao.slackDBQueries.selectAllPublicChannels(workspaceId).asFlow()
+            .mapToList(coroutineMainDispatcherProvider.default)
+            .map { skPublicChannels ->
+                skPublicChannels.map { skPublicChannel ->
+                    publicChannelMapper.mapToDomain(skPublicChannel)
+                }
+            }
+
+    private fun allDmChannelsFlow(workspaceId: String) =
+        slackChannelDao.slackDBQueries.selectAllDMChannels(workspaceId).asFlow()
+            .mapToList(coroutineMainDispatcherProvider.default).map {
+                it.map { skDMChannel ->
+                    directChannelMapper.mapToDomain(skDMChannel)
+                }
+            }.map { skChannelList ->
+                skChannelList.map { skChannel ->
+                    if (skChannel is DomainLayerChannels.SKChannel.SkDMChannel) {
+                        skChannel.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
+                    }
+                    skChannel
+                }
+            }
+
+    override suspend fun getChannel(request: UseCaseWorkspaceChannelRequest): DomainLayerChannels.SKChannel? {
+        return getChannelById(request.workspaceId, request.channelId!!)
+    }
 
 
 }
 
 fun DomainLayerChannels.SKChannel.SkDMChannel.populateDMChannelWithOtherUser(
-  skKeyValueData: SKLocalKeyValueSource,
-  skLocalDataSourceUsers: SKLocalDataSourceUsers
+    skKeyValueData: SKLocalKeyValueSource,
+    skLocalDataSourceUsers: SKLocalDataSourceUsers
 ) {
-  val loggedInUser = skKeyValueData.skUser()
-  val otherUserId = loggedInUser.otherUserInDMChannel(this)
-  val user = skLocalDataSourceUsers.getUser(this.workspaceId, otherUserId)
-  user?.let {
-    this.channelName = it.name
-    this.pictureUrl = it.avatarUrl
-  }
+    val loggedInUser = skKeyValueData.skUser()
+    val otherUserId = loggedInUser.otherUserInDMChannel(this)
+    val user = skLocalDataSourceUsers.getUser(this.workspaceId, otherUserId)
+    user?.let {
+        this.channelName = it.name
+        this.pictureUrl = it.avatarUrl
+    }
 }
 
 fun SKLocalKeyValueSource.skUser(): DomainLayerUsers.SKUser {
-  return Json.decodeFromString(this.get(LOGGED_IN_USER)!!)
+    return Json.decodeFromString(this.get(LOGGED_IN_USER)!!)
 }

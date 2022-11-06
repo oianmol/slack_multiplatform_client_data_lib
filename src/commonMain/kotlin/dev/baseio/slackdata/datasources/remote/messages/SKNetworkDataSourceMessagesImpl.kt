@@ -7,12 +7,13 @@ import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMes
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 
 class SKNetworkDataSourceMessagesImpl(private val grpcCalls: IGrpcCalls) : SKNetworkDataSourceMessages {
 
   override fun registerChangeInMessages(request: UseCaseWorkspaceChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {
-    return grpcCalls.listenToChangeInMessages(request).mapLatest { message ->
+    return grpcCalls.listenToChangeInMessages(request).map { message ->
       Pair(
         if (message.hasPrevious()) message.previous.toDomainLayerMessage() else null,
         if (message.hasLatest()) message.latest.toDomainLayerMessage() else null

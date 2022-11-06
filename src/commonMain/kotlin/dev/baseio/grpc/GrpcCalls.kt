@@ -2,6 +2,7 @@ package dev.baseio.grpc
 
 
 import dev.baseio.slackdata.protos.*
+import dev.baseio.slackdata.securepush.KMSecurePushServiceStub
 import dev.baseio.slackdomain.AUTH_TOKEN
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
@@ -27,6 +28,10 @@ class GrpcCalls(
 
     val workspacesStub by lazy {
         KMWorkspaceServiceStub(grpcChannel)
+    }
+
+    val secureService by lazy {
+        KMSecurePushServiceStub(grpcChannel)
     }
 
     val channelsStub by lazy {

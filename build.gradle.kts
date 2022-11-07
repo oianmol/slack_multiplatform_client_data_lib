@@ -89,7 +89,6 @@ kotlin {
             )
             dependsOn(sqlDriverNativeMain)
             dependencies {
-
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -112,7 +111,6 @@ kotlin {
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.6.4")
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }

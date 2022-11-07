@@ -74,12 +74,10 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Lib.Async.COROUTINES)
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha03")
                 api(project(":slack_generate_protos"))
                 implementation("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
@@ -89,6 +87,7 @@ kotlin {
             )
             dependsOn(sqlDriverNativeMain)
             dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesArm64)
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -100,6 +99,7 @@ kotlin {
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesiossimulatorarm64)
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -111,6 +111,7 @@ kotlin {
             dependsOn(sqlDriverNativeMain)
 
             dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesX64)
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
             }
@@ -127,13 +128,11 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Lib.Async.COROUTINES)
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
                 api(project(":slack_generate_protos"))
                 implementation("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
             }
         }
     }

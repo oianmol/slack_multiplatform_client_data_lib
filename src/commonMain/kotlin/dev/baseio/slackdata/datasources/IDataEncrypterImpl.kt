@@ -9,7 +9,7 @@ class IDataEncrypterImpl(private val keyManager: RsaEcdsaKeyManager) : IDataEncr
         keyManager.rawGenerateKeyPair()
     }
 
-    override fun encrypt() {
+    override fun encrypt(byteArray: ByteArray): ByteArray {
         TODO("Not yet implemented")
     }
 }

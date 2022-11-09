@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS slackMessage(
     uuid TEXT NOT NULL PRIMARY KEY,
     workspaceId TEXT  NOT NULL ,
     channelId TEXT  NOT NULL ,
-    message TEXT NOT NULL ,
+    message BLOB NOT NULL ,
     sender TEXT  NOT NULL ,
     createdDate INTEGER  NOT NULL ,
     modifiedDate INTEGER  NOT NULL,

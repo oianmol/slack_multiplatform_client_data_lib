@@ -37,10 +37,6 @@ kotlin {
     android(){
         publishLibraryVariants("release")
     }
-    iosArm64()
-    iosSimulatorArm64()
-    iosX64()
-    
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -81,43 +77,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
-        val iosArm64Main by getting {
-            kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
-            )
-            dependsOn(sqlDriverNativeMain)
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesArm64)
-                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-                implementation("com.squareup.sqldelight:native-driver:1.5.3")
-            }
-        }
-        val iosSimulatorArm64Main by getting {
-            kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
-            )
-            dependsOn(sqlDriverNativeMain)
-
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesiossimulatorarm64)
-                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-                implementation("com.squareup.sqldelight:native-driver:1.5.3")
-            }
-        }
-        val iosX64Main by getting {
-            kotlin.srcDirs(
-                projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
-            )
-            dependsOn(sqlDriverNativeMain)
-
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesX64)
-                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-                implementation("com.squareup.sqldelight:native-driver:1.5.3")
-            }
-        }
-
-
         val androidTest by getting {
             dependencies {
                 implementation("junit:junit:4.13.2")
@@ -144,20 +103,13 @@ grpcKotlinMultiplatform {
         OutputTarget.JVM,
         listOf(kotlin.sourceSets.getByName("jvmMain"), kotlin.sourceSets.getByName("androidMain"))
     )
-    targetSourcesMap.put(
-        OutputTarget.IOS,
-        listOf(
-            kotlin.sourceSets.getByName("iosArm64Main"),
-            kotlin.sourceSets.getByName("iosSimulatorArm64Main"),
-            kotlin.sourceSets.getByName("iosX64Main")
-        )
-    )
     //Specify the folders where your proto files are located, you can list multiple.
     protoSourceFolders.set(listOf(projectDir.parentFile.resolve("slack_protos/src/main/proto")))
 }
 
 dependencies {
     commonMainApi("io.github.timortel:grpc-multiplatform-lib:0.2.2")
+    commonMainApi(project(Lib.Project.CAPILLARY_KMP))
 }
 
 kotlin {

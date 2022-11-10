@@ -72,10 +72,6 @@ class GrpcCalls(
     }
 
 
-    override suspend fun register(kmskAuthUser: KMSKAuthUser, token: String?): KMSKAuthResult {
-        return authStub.register(kmskAuthUser, fetchToken(token))
-    }
-
     override suspend fun forgotPassword(kmskAuthUser: KMSKAuthUser, token: String?): KMSKUser {
         return authStub.forgotPassword(kmskAuthUser, fetchToken(token))
     }
@@ -96,10 +92,6 @@ class GrpcCalls(
         }, fetchToken(token))
     }
 
-    override suspend fun login(kmskAuthUser: KMSKAuthUser): KMSKAuthResult {
-        return authStub.login(kmskAuthUser)
-    }
-
     override suspend fun getWorkspaces(token: String?): KMSKWorkspaces {
         return workspacesStub.getWorkspaces(kmEmpty { }, fetchToken(token))
     }
@@ -108,7 +100,7 @@ class GrpcCalls(
         workspace: KMSKCreateWorkspaceRequest,
         token: String?
     ): KMSKAuthResult {
-        return workspacesStub.saveWorkspace(workspace, fetchToken(token))
+        return workspacesStub.letMeIn(workspace, fetchToken(token))
     }
 
     override suspend fun getPublicChannels(
@@ -260,12 +252,10 @@ interface IGrpcCalls {
     fun getQrCodeResponse(token: String? = skKeyValueData.get(AUTH_TOKEN)): Flow<KMSKQrCodeResponse>
     suspend fun getUsersForWorkspaceId(workspace: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUsers
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
-    suspend fun register(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKAuthResult
     suspend fun forgotPassword(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
     suspend fun resetPassword(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
     suspend fun findWorkspaceByName(name: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspace
     suspend fun findWorkspacesForEmail(email: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces
-    suspend fun login(kmskAuthUser: KMSKAuthUser): KMSKAuthResult
     suspend fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces
     suspend fun saveWorkspace(
         workspace: KMSKCreateWorkspaceRequest,

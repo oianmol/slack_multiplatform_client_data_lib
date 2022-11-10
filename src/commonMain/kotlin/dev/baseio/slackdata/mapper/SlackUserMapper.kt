@@ -35,6 +35,7 @@ fun SlackUser.toSkUser(): DomainLayerUsers.SKUser {
         uuid, workspaceId, gender, name, location, email, username,
         userSince,
         phone,
-        avatarUrl
+        avatarUrl,
+        publicKey = DomainLayerUsers.SKUserPublicKey(this.algorithm, this.publicKey)
     )
 }

@@ -183,14 +183,16 @@ CREATE TABLE IF NOT EXISTS slackUser(
    username TEXT NOT NULL,
    userSince INTEGER NOT NULL,
    phone TEXT NOT NULL,
-    avatarUrl TEXT  NOT NULL
+    avatarUrl TEXT  NOT NULL,
+    publicKey BLOB NOT NULL,
+    algorithm TEXT NOT NULL
 );
 
 getUser:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceId AND uuid=:userid;
 
 insertUser:
-INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,username,userSince,phone,avatarUrl) VALUES (?,?,?,?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,username,userSince,phone,avatarUrl,publicKey,algorithm) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
 
 selectAllUsers:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceid ORDER BY name DESC ;

@@ -38,7 +38,7 @@ class SKNetworkDataSourceReadUsersImpl(
         this.userSince,
         this.phone,
         this.avatarUrl,
-        DomainLayerUsers.SKUserPublicKey("", this.publicKey.keybytesList.map { it.byte.toByte() }.toByteArray())
+        DomainLayerUsers.SKUserPublicKey(this.publicKey.keybytesList.map { it.byte.toByte() }.toByteArray())
     )
 
     override fun listenToChangeInUsers(workspaceId: String): Flow<Pair<DomainLayerUsers.SKUser?, DomainLayerUsers.SKUser?>> {

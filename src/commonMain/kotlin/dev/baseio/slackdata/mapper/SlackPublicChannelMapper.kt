@@ -1,6 +1,8 @@
 package dev.baseio.slackdata.mapper
 
 import database.SkPublicChannel
+import dev.baseio.slackdata.datasources.remote.channels.toByteArray
+import dev.baseio.slackdata.datasources.remote.channels.toSKUserPublicKey
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 
 class SlackPublicChannelMapper :
@@ -13,7 +15,8 @@ class SlackPublicChannelMapper :
       modifiedDate = entity.modifiedDate,
       avatarUrl = entity.photo,
       workId = entity.workspaceId,
-      deleted = entity.isDeleted == 1L
+      deleted = entity.isDeleted == 1L,
+      userPublicKey = entity.publicKey.toSKUserPublicKey()
     )
   }
 
@@ -26,7 +29,8 @@ class SlackPublicChannelMapper :
       modifiedDate = model.modifiedDate,
       photo = model.avatarUrl,
       workspaceId = model.workId,
-      isDeleted = if (model.deleted) 1 else 0
+      isDeleted = if (model.deleted) 1 else 0,
+      publicKey = model.publicKey.toByteArray()
     )
   }
 }

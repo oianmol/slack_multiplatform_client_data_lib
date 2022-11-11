@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS skPublicChannel(
     createdDate INTEGER  NOT NULL ,
     modifiedDate INTEGER NOT NULL ,
     photo TEXT DEFAULT NULL,
-    isDeleted INTEGER DEFAULT 0
+    isDeleted INTEGER DEFAULT 0,
+        publicKey BLOB NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS skDMChannel(
@@ -41,15 +42,16 @@ CREATE TABLE IF NOT EXISTS skDMChannel(
     modifiedDate INTEGER NOT NULL ,
     senderId TEXT NOT NULL ,
     receiverId TEXT NOT NULL ,
-    isDeleted INTEGER DEFAULT 0
+    isDeleted INTEGER DEFAULT 0,
+        publicKey BLOB NOT NULL
 );
 
 insertDMChannel:
-INSERT OR REPLACE INTO skDMChannel(uuid,workspaceId,createdDate,modifiedDate,senderId,receiverId,isDeleted) VALUES(?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO skDMChannel(uuid,workspaceId,createdDate,modifiedDate,senderId,receiverId,isDeleted,publicKey) VALUES(?,?,?,?,?,?,?,?);
 
 
 insertPublicChannel:
-INSERT OR REPLACE INTO skPublicChannel(uuid,workspaceId,name,createdDate,modifiedDate,photo,isDeleted) VALUES(?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO skPublicChannel(uuid,workspaceId,name,createdDate,modifiedDate,photo,isDeleted,publicKey) VALUES(?,?,?,?,?,?,?,?);
 
 countPublicChannels:
 SELECT COUNt(*) FROM skPublicChannel WHERE workspaceId=:workspaceid;
@@ -185,15 +187,14 @@ CREATE TABLE IF NOT EXISTS slackUser(
    userSince INTEGER NOT NULL,
    phone TEXT NOT NULL,
     avatarUrl TEXT  NOT NULL,
-    publicKey BLOB NOT NULL,
-    algorithm TEXT NOT NULL
+    publicKey BLOB NOT NULL
 );
 
 getUser:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceId AND uuid=:userid;
 
 insertUser:
-INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,username,userSince,phone,avatarUrl,publicKey,algorithm) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,username,userSince,phone,avatarUrl,publicKey) VALUES (?,?,?,?,?,?,?,?,?,?,?);
 
 selectAllUsers:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceid ORDER BY name DESC ;

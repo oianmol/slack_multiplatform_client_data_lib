@@ -26,7 +26,6 @@ fun DomainLayerUsers.SKUser.toDBSlackUser(): SlackUser {
         phone ?: throw Exception("phone cannot be null"),
         avatarUrl ?: throw Exception("avatarUrl cannot be null"),
         publicKey?.keyBytes ?: throw Exception("keyBytes cannot be null!"),
-        publicKey?.algorithm!!
     )
 }
 
@@ -36,6 +35,6 @@ fun SlackUser.toSkUser(): DomainLayerUsers.SKUser {
         userSince,
         phone,
         avatarUrl,
-        publicKey = DomainLayerUsers.SKUserPublicKey(this.algorithm, this.publicKey)
+        publicKey = DomainLayerUsers.SKUserPublicKey(this.publicKey)
     )
 }

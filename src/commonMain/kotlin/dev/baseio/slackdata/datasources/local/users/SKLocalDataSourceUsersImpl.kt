@@ -65,7 +65,6 @@ class SKLocalDataSourceUsersImpl(
         it.phone ?: throw Exception("phone cannot be null!"),
         it.avatarUrl ?: throw Exception("avatarUrl cannot be null!"),
         it.publicKey?.keyBytes ?: throw Exception("keyBytes cannot be null!"),
-        it.publicKey?.algorithm!!
       )
     }
 

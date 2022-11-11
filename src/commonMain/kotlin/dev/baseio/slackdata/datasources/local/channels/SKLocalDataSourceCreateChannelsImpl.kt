@@ -3,6 +3,7 @@ package dev.baseio.slackdata.datasources.local.channels
 import database.SkDMChannel
 import database.SkPublicChannel
 import dev.baseio.database.SlackDB
+import dev.baseio.slackdata.datasources.remote.channels.toSlackPublicKey
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.mapper.EntityMapper
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
@@ -28,7 +29,8 @@ class SKLocalDataSourceCreateChannelsImpl(
             createdDate = params.createdDate,
             modifiedDate = params.modifiedDate,
             isDeleted = if (params.deleted) 1 else 0,
-            photo = params.avatarUrl
+            photo = params.avatarUrl,
+            publicKey = params.userPublicKey.keyBytes
           )
           slackChannelDao.slackDBQueries.selectPublicChannelById(params.workId, params.uuid).executeAsOne()
             .let { publicChannelMapper.mapToDomain(it) }
@@ -42,7 +44,8 @@ class SKLocalDataSourceCreateChannelsImpl(
             modifiedDate = params.modifiedDate,
             senderId = params.senderId,
             receiverId = params.receiverId,
-            isDeleted = if (params.deleted) 1 else 0
+            isDeleted = if (params.deleted) 1 else 0,
+            publicKey = params.userPublicKey.keyBytes
           )
           slackChannelDao.slackDBQueries.selectDMChannelById(params.workId, params.uuid).executeAsOne()
             .let { dmChannelMapper.mapToDomain(it) }

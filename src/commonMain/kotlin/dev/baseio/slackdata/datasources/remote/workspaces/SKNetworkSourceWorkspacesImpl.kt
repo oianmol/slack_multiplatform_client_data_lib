@@ -1,6 +1,8 @@
 package dev.baseio.slackdata.datasources.remote.workspaces
 
 import dev.baseio.grpc.IGrpcCalls
+import dev.baseio.security.RsaEcdsaKeyManagerInstances
+import dev.baseio.slackdata.common.kmSKByteArrayElement
 import dev.baseio.slackdata.protos.kmSKAuthUser
 import dev.baseio.slackdata.protos.kmSKCreateWorkspaceRequest
 import dev.baseio.slackdata.protos.kmSKUser
@@ -8,18 +10,12 @@ import dev.baseio.slackdata.protos.kmSKWorkspace
 import dev.baseio.slackdata.protos.kmSlackPublicKey
 import dev.baseio.slackdomain.datasources.remote.workspaces.SKNetworkSourceWorkspaces
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
-import dev.baseio.security.RsaEcdsaKeyManager
-import dev.baseio.security.getPublicKey
-import dev.baseio.slackdata.common.kmSKByteArrayElement
-import java.security.KeyFactory
-import java.security.spec.X509EncodedKeySpec
 
 class SKNetworkSourceWorkspacesImpl(
     private val grpcCalls: IGrpcCalls,
-    private val rsaEcdsaKeyManager: RsaEcdsaKeyManager
 ) : SKNetworkSourceWorkspaces {
     override suspend fun saveWorkspace(email: String, password: String, domain: String): DomainLayerUsers.SKAuthResult {
-        val publicKey = rsaEcdsaKeyManager.getPublicKey()
+        val publicKey = RsaEcdsaKeyManagerInstances.getInstance(email).getPublicKey()
         return kotlin.run {
             val result = grpcCalls.saveWorkspace(
                 kmskCreateWorkspaceRequest(

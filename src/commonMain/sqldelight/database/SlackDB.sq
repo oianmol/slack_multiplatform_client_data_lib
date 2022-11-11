@@ -121,11 +121,16 @@ CREATE TABLE IF NOT EXISTS slackChannelMember(
      uuid TEXT NOT NULL PRIMARY KEY,
      workspaceId TEXT  NOT NULL ,
      channelId TEXT  NOT NULL ,
-     memberId TEXT  NOT NULL
+     memberId TEXT  NOT NULL,
+     channelPrivateKey BLOB
 );
 
+getChannelPrivateKeyForUser:
+SELECT * FROM slackChannelMember WHERE channelId=:channelId AND workspaceId=:workspaceId AND memberId =:memberId;
+
+
 insertMember:
-INSERT OR REPLACE INTO slackChannelMember(uuid,workspaceId,channelId,memberId) VALUES (?,?,?,?);
+INSERT OR REPLACE INTO slackChannelMember(uuid,workspaceId,channelId,memberId,channelPrivateKey) VALUES (?,?,?,?,?);
 
 selectAllMembers:
 SELECT * FROM slackChannelMember WHERE channelId=:channelId AND workspaceId=:workspaceId;
@@ -192,6 +197,9 @@ CREATE TABLE IF NOT EXISTS slackUser(
 
 getUser:
 SELECT * FROM slackUser WHERE workspaceId=:workspaceId AND uuid=:userid;
+
+getUserByUserName:
+SELECT * FROM slackUser WHERE workspaceId=:workspaceId AND username=:username;
 
 insertUser:
 INSERT OR REPLACE INTO slackUser(uuid,workspaceId,gender,name,location,email,username,userSince,phone,avatarUrl,publicKey) VALUES (?,?,?,?,?,?,?,?,?,?,?);

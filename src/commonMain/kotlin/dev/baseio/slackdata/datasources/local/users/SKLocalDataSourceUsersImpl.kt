@@ -51,6 +51,10 @@ class SKLocalDataSourceUsersImpl(
     }
   }
 
+  override fun getUserByUserName(workspaceId: String, userName: String): DomainLayerUsers.SKUser? {
+    return slackDB.slackDBQueries.getUserByUserName(workspaceId,userName)
+  }
+
   override fun saveUser(senderInfo: DomainLayerUsers.SKUser?) {
     senderInfo?.let {
       slackDB.slackDBQueries.insertUser(

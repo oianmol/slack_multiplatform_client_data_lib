@@ -14,7 +14,8 @@ class SlackMessageMapper : EntityMapper<DomainLayerMessages.SKMessage, SlackMess
       entity.createdDate,
       entity.modifiedDate,
       isDeleted = entity.isDeleted == 1L,
-      isSynced = entity.isSynced == 1L
+      isSynced = entity.isSynced == 1L,
+      entity.localMessage
     )
   }
 
@@ -28,7 +29,8 @@ class SlackMessageMapper : EntityMapper<DomainLayerMessages.SKMessage, SlackMess
       model.createdDate,
       model.modifiedDate,
       if (model.isDeleted) 1 else 0,
-      if (model.isSynced) 1 else 0
+      if (model.isSynced) 1 else 0,
+      model.localMessage
     )
   }
 }

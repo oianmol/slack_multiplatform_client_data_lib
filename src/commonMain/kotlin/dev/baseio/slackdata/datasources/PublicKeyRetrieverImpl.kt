@@ -23,13 +23,12 @@ class PublicKeyRetrieverImpl(
                     return whenOneToOneChannel(workspaceId, channelId, sender)
                 }
                 is DomainLayerChannels.SKChannel.SkGroupChannel -> {
-
+                    throw Exception("Not implemented!")
                 }
             }
         } ?: kotlin.run {
             throw Exception("Woah! the channel does not exist!")
         }
-
     }
 
     private suspend fun whenOneToOneChannel(

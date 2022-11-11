@@ -9,6 +9,7 @@ import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
+import dev.baseio.slackdomain.datasources.IDataDecryptor
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
@@ -25,7 +26,7 @@ class SlackSKLocalDataSourceChannelLastMessage(
   private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
   private val dmChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
   private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
-  private val skLocalDataSourceUsers: SKLocalDataSourceUsers
+  private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
 ) : SKLocalDataSourceChannelLastMessage {
   override fun fetchChannelsWithLastMessage(workspaceId: String): Flow<List<DomainLayerMessages.SKLastMessage>> {
     val chatPager = slackChannelDao.slackDBQueries.selectLastMessageOfChannel(workspaceId)
@@ -36,6 +37,7 @@ class SlackSKLocalDataSourceChannelLastMessage(
         // here we are fetching the channel details from the channelId of last message
         val message = slackMessage(channelsWithLastMessage)
         val channel = skPublicChannel(workspaceId, channelsWithLastMessage)
+
         channel?.let {
           return@mapNotNull DomainLayerMessages.SKLastMessage(
             publicChannelMapper.mapToDomain(channel),
@@ -85,6 +87,7 @@ class SlackSKLocalDataSourceChannelLastMessage(
     channelsWithLastMessage.createdDate,
     channelsWithLastMessage.modifiedDate,
     channelsWithLastMessage.isDeleted,
-    channelsWithLastMessage.isSynced
+    channelsWithLastMessage.isSynced,
+    channelsWithLastMessage.localMessage
   )
 }

@@ -92,7 +92,8 @@ class SKLocalDataSourceMessagesImpl constructor(
         params.createdDate,
         params.modifiedDate,
         if (params.isDeleted) 1 else 0,
-        if (params.isSynced) 1 else 0
+        if (params.isSynced) 1 else 0,
+        params.localMessage
       )
       params
     }

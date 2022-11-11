@@ -62,6 +62,7 @@ fun KMSKMessage.toDomainLayerMessage(): DomainLayerMessages.SKMessage {
         createdDate = params.createdDate,
         modifiedDate = params.modifiedDate,
         isDeleted = params.isDeleted,
-        isSynced = true
+        isSynced = true,
+        emptyArray<Byte>().toByteArray()
     )
 }

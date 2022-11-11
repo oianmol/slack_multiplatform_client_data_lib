@@ -28,8 +28,13 @@ class SKLocalDataSourceChannelMembersImpl(
     }
   }
 
-  override fun getChannelPrivateKeyForMe(workspaceId: String, channelId: String, uuid: String): DomainLayerChannels.SkChannelMember {
-    return slackDB.slackDBQueries.getChannelPrivateKeyForUser(workspaceId, channelId, uuid).executeAsOne()
+  override fun getChannelPrivateKeyForMe(
+    workspaceId: String,
+    channelId: String,
+    uuid: String
+  ): DomainLayerChannels.SkChannelMember {
+    return slackDB.slackDBQueries.getChannelPrivateKeyForUser(channelId,workspaceId, uuid).executeAsOne()
+      .toChannelMember()
   }
 
   override suspend fun save(members: List<DomainLayerChannels.SkChannelMember>) {
@@ -39,7 +44,8 @@ class SKLocalDataSourceChannelMembersImpl(
           skChannelMember.uuid,
           skChannelMember.workspaceId,
           skChannelMember.channelId,
-          skChannelMember.memberId
+          skChannelMember.memberId,
+          skChannelMember.channelEncryptedPrivateKey.keyBytes
         )
       }
     }

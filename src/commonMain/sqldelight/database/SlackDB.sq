@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS slackChannelMember(
      workspaceId TEXT  NOT NULL ,
      channelId TEXT  NOT NULL ,
      memberId TEXT  NOT NULL,
-     channelPrivateKey BLOB
+     channelPrivateKey BLOB NOT NULL
 );
 
 getChannelPrivateKeyForUser:

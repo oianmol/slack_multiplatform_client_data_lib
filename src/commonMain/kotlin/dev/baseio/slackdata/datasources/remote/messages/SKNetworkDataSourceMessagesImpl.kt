@@ -38,9 +38,9 @@ class SKNetworkDataSourceMessagesImpl(private val grpcCalls: IGrpcCalls, private
 
     override suspend fun sendMessage(params: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage {
         val channelPublicKey = RsaEcdsaKeyManagerInstances.getInstance(params.channelId).getPublicKey().encoded
-        iDataEncrypter.encrypt(
+        val encryptedMessage = iDataEncrypter.encrypt(
             params.message,
-            publicKeyRetriever.retrieve(params.sender, params.channelId, params.workspaceId), channelPublicKey
+            channelPublicKey,
         )
         return grpcCalls.sendMessage(kmSKMessage {
             uuid = params.uuid
@@ -48,7 +48,7 @@ class SKNetworkDataSourceMessagesImpl(private val grpcCalls: IGrpcCalls, private
             isDeleted = params.isDeleted
             channelId = params.channelId
             textList.addAll(
-                params.message.map {
+                encryptedMessage.map {
                     kmSKByteArrayElement {
                         this.byte = it.toInt()
                     }

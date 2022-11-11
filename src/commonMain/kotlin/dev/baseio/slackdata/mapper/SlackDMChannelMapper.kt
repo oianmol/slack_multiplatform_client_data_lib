@@ -3,7 +3,6 @@ package dev.baseio.slackdata.mapper
 import database.SkDMChannel
 import dev.baseio.slackdata.datasources.remote.channels.toByteArray
 import dev.baseio.slackdata.datasources.remote.channels.toSKUserPublicKey
-import dev.baseio.slackdata.datasources.remote.channels.toSlackPublicKey
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 
 class SlackDMChannelMapper : EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel> {
@@ -16,7 +15,7 @@ class SlackDMChannelMapper : EntityMapper<DomainLayerChannels.SKChannel, SkDMCha
       deleted = entity.isDeleted == 1L,
       senderId = entity.senderId,
       receiverId = entity.receiverId,
-      userPublicKey = entity.publicKey.toSKUserPublicKey()
+      channelPublicKey = entity.publicKey.toSKUserPublicKey()
     )
   }
 

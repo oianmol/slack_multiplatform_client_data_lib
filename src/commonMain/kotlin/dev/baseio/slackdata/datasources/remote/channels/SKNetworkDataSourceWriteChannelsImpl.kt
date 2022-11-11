@@ -90,7 +90,7 @@ fun KMSKChannel.mapToDomainSkChannel(): DomainLayerChannels.SKChannel {
     modifiedDate = params.modifiedDate,
     avatarUrl = params.avatarUrl,
     deleted = params.isDeleted,
-    userPublicKey = params.publicKey.toUserPublicKey()
+    channelPublicKey = params.publicKey.toUserPublicKey()
   )
 }
 
@@ -118,6 +118,6 @@ fun KMSKDMChannel.mapToDomainSkChannel(): DomainLayerChannels.SKChannel {
     deleted = params.isDeleted,
     senderId = params.senderId,
     receiverId = params.receiverId,
-    userPublicKey = params.publicKey.toUserPublicKey()
+    channelPublicKey = params.publicKey.toUserPublicKey()
   )
 }

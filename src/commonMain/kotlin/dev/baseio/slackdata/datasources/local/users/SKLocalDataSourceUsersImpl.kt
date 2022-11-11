@@ -5,6 +5,7 @@ import dev.baseio.database.SlackDB
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
+import dev.baseio.slackdata.mapper.toSkUser
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import kotlinx.coroutines.flow.Flow
@@ -51,8 +52,8 @@ class SKLocalDataSourceUsersImpl(
     }
   }
 
-  override fun getUserByUserName(workspaceId: String, userName: String): DomainLayerUsers.SKUser? {
-    return slackDB.slackDBQueries.getUserByUserName(workspaceId,userName)
+  override fun getUserByUserName(workspaceId: String, userName: String): DomainLayerUsers.SKUser {
+    return slackDB.slackDBQueries.getUserByUserName(workspaceId, userName).executeAsOne().toSkUser()
   }
 
   override fun saveUser(senderInfo: DomainLayerUsers.SKUser?) {

@@ -19,5 +19,5 @@ class SKNetworkDataSourceReadChannelMembersImpl(private val grpcCalls: IGrpcCall
 }
 
 fun KMSKChannelMember.toDomain(): DomainLayerChannels.SkChannelMember {
-  return DomainLayerChannels.SkChannelMember(this.uuid, this.workspaceId, this.channelId, this.memberId)
+  return DomainLayerChannels.SkChannelMember(this.uuid, this.workspaceId, this.channelId, this.memberId,this.channelPrivateKey.toUserPublicKey())
 }

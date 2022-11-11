@@ -16,7 +16,7 @@ class SlackPublicChannelMapper :
       avatarUrl = entity.photo,
       workId = entity.workspaceId,
       deleted = entity.isDeleted == 1L,
-      userPublicKey = entity.publicKey.toSKUserPublicKey()
+      channelPublicKey = entity.publicKey.toSKUserPublicKey()
     )
   }
 

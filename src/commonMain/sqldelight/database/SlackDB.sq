@@ -160,12 +160,11 @@ CREATE TABLE IF NOT EXISTS slackMessage(
     createdDate INTEGER  NOT NULL ,
     modifiedDate INTEGER  NOT NULL,
     isDeleted INTEGER NOT NULL,
-    isSynced INTEGER NOT NULL,
-    localMessage BLOB NOT NULL
+    isSynced INTEGER NOT NULL
 );
 
 insertMessage:
-INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,sender,createdDate,modifiedDate,isDeleted,isSynced,localMessage) VALUES(?,?,?,?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,sender,createdDate,modifiedDate,isDeleted,isSynced) VALUES(?,?,?,?,?,?,?,?,?);
 
 selectAllMessages:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 ORDER BY modifiedDate DESC;

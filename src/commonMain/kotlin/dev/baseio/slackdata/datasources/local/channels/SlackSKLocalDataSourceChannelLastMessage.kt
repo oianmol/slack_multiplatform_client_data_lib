@@ -5,133 +5,88 @@ import database.SkDMChannel
 import database.SkPublicChannel
 import database.SlackMessage
 import dev.baseio.database.SlackDB
-import dev.baseio.security.RsaEcdsaKeyManagerInstances
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
-import dev.baseio.slackdomain.datasources.IDataDecryptor
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelLastMessage
-import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelMembers
+import dev.baseio.slackdomain.datasources.local.messages.IMessageDecrypter
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
-import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class SlackSKLocalDataSourceChannelLastMessage(
-  private val slackChannelDao: SlackDB,
-  private val skKeyValueData: SKLocalKeyValueSource,
-  private val messagesMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
-  private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
-  private val dmChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
-  private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
-  private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
-  private val skLocalDataSourceChannelMembers: SKLocalDataSourceChannelMembers,
-  private val iDataDecryptor: IDataDecryptor
+    private val slackChannelDao: SlackDB,
+    private val skKeyValueData: SKLocalKeyValueSource,
+    private val messagesMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
+    private val publicChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkPublicChannel>,
+    private val dmChannelMapper: EntityMapper<DomainLayerChannels.SKChannel, SkDMChannel>,
+    private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
+    private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
+    private val iMessageDecrypter: IMessageDecrypter
 ) : SKLocalDataSourceChannelLastMessage {
-  override fun fetchChannelsWithLastMessage(workspaceId: String): Flow<List<DomainLayerMessages.SKLastMessage>> {
-    val chatPager = slackChannelDao.slackDBQueries.selectLastMessageOfChannel(workspaceId)
-      .asFlow()
-      .mapToList(coroutineDispatcherProvider.default)
-    return chatPager.map { selectLastMessageOfChannels ->
-      selectLastMessageOfChannels.mapNotNull { channelsWithLastMessage ->
-        // here we are fetching the channel details from the channelId of last message
-        val message = slackMessage(channelsWithLastMessage)
-        val channel = skPublicChannel(workspaceId, channelsWithLastMessage)
+    override fun fetchChannelsWithLastMessage(workspaceId: String): Flow<List<DomainLayerMessages.SKLastMessage>> {
+        val chatPager = slackChannelDao.slackDBQueries.selectLastMessageOfChannel(workspaceId)
+            .asFlow()
+            .mapToList(coroutineDispatcherProvider.default)
+        return chatPager.map { selectLastMessageOfChannels ->
+            selectLastMessageOfChannels.mapNotNull { channelsWithLastMessage ->
+                // here we are fetching the channel details from the channelId of last message
+                val message = slackMessage(channelsWithLastMessage)
+                val channel = skPublicChannel(workspaceId, channelsWithLastMessage)
 
-        channel?.let {
-          return@mapNotNull DomainLayerMessages.SKLastMessage(
-            publicChannelMapper.mapToDomain(channel),
-            messagesMapper.mapToDomain(message)
-          )
+                channel?.let {
+                    return@mapNotNull DomainLayerMessages.SKLastMessage(
+                        publicChannelMapper.mapToDomain(channel),
+                        messagesMapper.mapToDomain(message)
+                    )
+                }
+                val dmChannel = skDMChannel(workspaceId, channelsWithLastMessage)
+                dmChannel?.let { skDMChannel ->
+                    val domainChannel = dmChannelMapper.mapToDomain(skDMChannel)
+                    (domainChannel as DomainLayerChannels.SKChannel.SkDMChannel).populateDMChannelWithOtherUser(
+                        skKeyValueData,
+                        skLocalDataSourceUsers
+                    )
+                    return@mapNotNull DomainLayerMessages.SKLastMessage(
+                        domainChannel,
+                        messagesMapper.mapToDomain(message)
+                    )
+                }
+                return@mapNotNull null
+            }
+        }.map { skLastMessageList ->
+            skLastMessageList.map { skLastMessage ->
+                val decrypted = iMessageDecrypter.decrypted(skLastMessage.message)
+                skLastMessage.copy(message = decrypted ?: skLastMessage.message)
+            }
         }
-        val dmChannel = skDMChannel(workspaceId, channelsWithLastMessage)
-        dmChannel?.let { skDMChannel ->
-          val domainChannel = dmChannelMapper.mapToDomain(skDMChannel)
-          (domainChannel as DomainLayerChannels.SKChannel.SkDMChannel).populateDMChannelWithOtherUser(
-            skKeyValueData,
-            skLocalDataSourceUsers
-          )
-          return@mapNotNull DomainLayerMessages.SKLastMessage(
-            domainChannel,
-            messagesMapper.mapToDomain(message)
-          )
-        }
-        return@mapNotNull null
-      }
-    }.map { skLastMessageList ->
-      skLastMessageList.map { skLastMessage ->
-        val myPrivateKey =
-          RsaEcdsaKeyManagerInstances.getInstance(skKeyValueData.skUser().email!!).getPrivateKey().encoded
-
-        val channelEncryptedPrivateKey = skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
-          skLastMessage.channel.workspaceId,
-          skLastMessage.channel.channelId,
-          skKeyValueData.skUser().uuid
-        ).channelEncryptedPrivateKey.keyBytes
-
-        val decryptedPrivateKeyBytes = iDataDecryptor.decrypt(channelEncryptedPrivateKey, myPrivateKey)
-        val messageFinal = finalMessageAfterDecryption(skLastMessage, decryptedPrivateKeyBytes)
-        skLastMessage.copy(message = messageFinal)
-      }
     }
-  }
 
-  private fun finalMessageAfterDecryption(
-    skLastMessage: DomainLayerMessages.SKLastMessage,
-    privateKeyBytes: ByteArray
-  ): DomainLayerMessages.SKMessage {
-    var messageFinal = skLastMessage.message
-    runCatching {
-      messageFinal =
-        messageFinal.copy(
-          decodedMessage = iDataDecryptor.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
-            .decodeToString()
-        )
-    }.exceptionOrNull()?.let {
-      kotlin.runCatching {
-        messageFinal =
-          messageFinal.copy(
-            decodedMessage = iDataDecryptor.decrypt(
-              messageFinal.localMessage,
-              privateKeyBytes = privateKeyBytes
-            ).decodeToString()
-          )
-      }
-    }
-    return messageFinal
-  }
+    private fun skDMChannel(
+        workspaceId: String,
+        channelsWithLastMessage: SelectLastMessageOfChannel
+    ) = slackChannelDao.slackDBQueries.selectDMChannelById(workspaceId, channelsWithLastMessage.channelId)
+        .executeAsOneOrNull()
 
-  private fun getOtherUser(
-    dmChannel: SkDMChannel,
-    loggedInUser: DomainLayerUsers.SKUser
-  ) = if (dmChannel.receiverId == loggedInUser.uuid) dmChannel.senderId else dmChannel.receiverId
+    private fun skPublicChannel(
+        workspaceId: String,
+        channelsWithLastMessage: SelectLastMessageOfChannel
+    ) = slackChannelDao.slackDBQueries.selectPublicChannelById(workspaceId, channelsWithLastMessage.channelId)
+        .executeAsOneOrNull()
 
-  private fun skDMChannel(
-    workspaceId: String,
-    channelsWithLastMessage: SelectLastMessageOfChannel
-  ) = slackChannelDao.slackDBQueries.selectDMChannelById(workspaceId, channelsWithLastMessage.channelId)
-    .executeAsOneOrNull()
-
-  private fun skPublicChannel(
-    workspaceId: String,
-    channelsWithLastMessage: SelectLastMessageOfChannel
-  ) = slackChannelDao.slackDBQueries.selectPublicChannelById(workspaceId, channelsWithLastMessage.channelId)
-    .executeAsOneOrNull()
-
-  private fun slackMessage(channelsWithLastMessage: SelectLastMessageOfChannel) = SlackMessage(
-    channelsWithLastMessage.uuid,
-    channelsWithLastMessage.workspaceId,
-    channelsWithLastMessage.channelId,
-    channelsWithLastMessage.message,
-    channelsWithLastMessage.sender,
-    channelsWithLastMessage.createdDate,
-    channelsWithLastMessage.modifiedDate,
-    channelsWithLastMessage.isDeleted,
-    channelsWithLastMessage.isSynced,
-    channelsWithLastMessage.localMessage
-  )
+    private fun slackMessage(channelsWithLastMessage: SelectLastMessageOfChannel) = SlackMessage(
+        channelsWithLastMessage.uuid,
+        channelsWithLastMessage.workspaceId,
+        channelsWithLastMessage.channelId,
+        channelsWithLastMessage.message,
+        channelsWithLastMessage.sender,
+        channelsWithLastMessage.createdDate,
+        channelsWithLastMessage.modifiedDate,
+        channelsWithLastMessage.isDeleted,
+        channelsWithLastMessage.isSynced,
+    )
 }

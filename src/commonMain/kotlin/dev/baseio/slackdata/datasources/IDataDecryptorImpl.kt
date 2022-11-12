@@ -5,7 +5,6 @@ import dev.baseio.security.RsaEcdsaConstants
 import dev.baseio.slackdomain.datasources.IDataDecryptor
 import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.X509EncodedKeySpec
 
 class IDataDecryptorImpl : IDataDecryptor {
   override fun decrypt(byteArray: ByteArray, privateKeyBytes: ByteArray): ByteArray {

@@ -30,7 +30,7 @@ class IMessageDecrypterImpl(
                     safeChannelEncryptedPrivateKey,
                     myPrivateKey
                 )
-            }
+            }.exceptionOrNull()?.printStackTrace()
         }
 
         return decryptedPrivateKeyBytes?.let { bytes -> finalMessageAfterDecryption(message, bytes) }

@@ -10,6 +10,8 @@ import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChanne
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkSourceChannel
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
+import java.security.interfaces.RSAKey
+import java.security.interfaces.RSAPrivateKey
 
 class SKNetworkSourceChannelImpl(
     private val grpcCalls: IGrpcCalls,
@@ -19,54 +21,6 @@ class SKNetworkSourceChannelImpl(
     private val skLocalKeyValueSource: SKLocalKeyValueSource,
     private val iDataDecryptor: IDataDecryptor
 ) : SKNetworkSourceChannel {
-
-    override suspend fun addUsersToChannelOnceCreated(channelNew: DomainLayerChannels.SKChannel): List<DomainLayerChannels.SkChannelMember> {
-        return when (channelNew) {
-            is DomainLayerChannels.SKChannel.SkDMChannel -> {
-                if (channelNew.senderId == channelNew.receiverId) {
-                    inviteUserToChannelOnceCreated(channelNew.senderId, channelNew.channelId, channelNew.workspaceId)
-                } else {
-                    inviteUserToChannelOnceCreated(channelNew.senderId, channelNew.channelId, channelNew.workspaceId)
-                    inviteUserToChannelOnceCreated(channelNew.receiverId, channelNew.channelId, channelNew.workspaceId)
-                }
-            }
-
-            is DomainLayerChannels.SKChannel.SkGroupChannel -> {
-                inviteUserToChannelOnceCreated(
-                    skLocalKeyValueSource.skUser().uuid,
-                    channelNew.channelId,
-                    channelNew.workspaceId
-                )
-            }
-        }
-
-    }
-
-    private suspend fun inviteUserToChannelOnceCreated(
-        userName: String,
-        channelId: String,
-        workspaceId: String
-    ): List<DomainLayerChannels.SkChannelMember> {
-        val rsaEcdsaKeyManager = RsaEcdsaKeyManagerInstances.getInstance(channelId)
-        val channelPrivateKey = rsaEcdsaKeyManager.getPrivateKey()
-
-        val user = kotlin.runCatching {
-            skLocalDataSourceUsers.getUserByUserName(workspaceId, userName)
-        }.exceptionOrNull()?.let {
-            skLocalDataSourceUsers.getUser(workspaceId, userName)
-        }
-        user?.let {
-            // here we encrypt the channel's private key with the invited users public key
-            val encrypted = iDataEncrypter.encrypt(
-                channelPrivateKey.encoded,
-                user.publicKey!!.keyBytes
-            )
-            return inviteUserInternal(userName, channelId, encrypted)
-        } ?: run {
-            throw Exception("User Not Found!")
-        }
-
-    }
 
     private suspend fun inviteUserInternal(
         userName: String,

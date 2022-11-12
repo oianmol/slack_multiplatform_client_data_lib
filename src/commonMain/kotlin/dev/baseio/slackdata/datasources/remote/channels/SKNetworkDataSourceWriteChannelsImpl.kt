@@ -17,9 +17,6 @@ class SKNetworkDataSourceWriteChannelsImpl(
 ) : SKNetworkDataSourceWriteChannels {
   override suspend fun createChannel(params: DomainLayerChannels.SKChannel): Result<DomainLayerChannels.SKChannel> {
     return withContext(coroutineDispatcherProvider.io) {
-      val rsaEcdsaKeyManager = RsaEcdsaKeyManagerInstances.getInstance(params.channelId)
-      val publicKey = rsaEcdsaKeyManager.getPublicKey()
-      val slackPublicKey = publicKey.encoded.toKMSlackPublicKey()
       kotlin.runCatching {
         when (params) {
           is DomainLayerChannels.SKChannel.SkDMChannel -> {
@@ -31,7 +28,6 @@ class SKNetworkDataSourceWriteChannelsImpl(
               this.senderId = params.senderId
               this.receiverId = params.receiverId
               this.isDeleted = params.deleted
-              this.publicKey = slackPublicKey
             }).mapToDomainSkChannel()
           }
 
@@ -44,7 +40,6 @@ class SKNetworkDataSourceWriteChannelsImpl(
               modifiedDate = params.modifiedDate
               avatarUrl = params.avatarUrl
               this.isDeleted = params.deleted
-              this.publicKey = slackPublicKey
             }).mapToDomainSkChannel()
           }
         }

@@ -2,6 +2,7 @@ package dev.baseio.slackdata.datasources.local.channels
 
 import database.SlackChannelMember
 import dev.baseio.database.SlackDB
+import dev.baseio.slackdata.datasources.remote.channels.toSKUserPublicKey
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
@@ -54,5 +55,5 @@ class SKLocalDataSourceChannelMembersImpl(
 }
 
 fun SlackChannelMember.toChannelMember(): DomainLayerChannels.SkChannelMember {
-  return DomainLayerChannels.SkChannelMember(this.uuid, this.workspaceId, this.channelId, this.memberId)
+  return DomainLayerChannels.SkChannelMember(this.uuid, this.workspaceId, this.channelId, this.memberId,this.channelPrivateKey.toSKUserPublicKey())
 }

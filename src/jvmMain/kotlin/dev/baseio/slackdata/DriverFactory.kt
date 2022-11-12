@@ -6,7 +6,8 @@ import java.io.File
 
 actual class DriverFactory {
     actual fun createDriver(schema: SqlDriver.Schema): SqlDriver {
-        val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        val databasePath = File(System.getProperty("user.home"), "SlackDB.db")
+        val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:"+databasePath.absolutePath)
         schema.create(driver)
         return driver
     }

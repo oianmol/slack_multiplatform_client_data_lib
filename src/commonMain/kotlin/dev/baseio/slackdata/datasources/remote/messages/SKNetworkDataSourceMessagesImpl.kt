@@ -1,13 +1,10 @@
 package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.IGrpcCalls
-import dev.baseio.security.RsaEcdsaKeyManagerInstances
 import dev.baseio.slackdata.common.kmSKByteArrayElement
-import dev.baseio.slackdata.datasources.remote.channels.toSlackPublicKey
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
-import dev.baseio.slackdomain.datasources.PublicKeyRetriever
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
@@ -15,8 +12,8 @@ import dev.baseio.slackdomain.usecases.channels.UseCaseWorkspaceChannelRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SKNetworkDataSourceMessagesImpl(private val grpcCalls: IGrpcCalls, private val iDataEncrypter: IDataEncrypter,
-                                      private val publicKeyRetriever: PublicKeyRetriever
+class SKNetworkDataSourceMessagesImpl(
+    private val grpcCalls: IGrpcCalls, private val iDataEncrypter: IDataEncrypter
 ) : SKNetworkDataSourceMessages {
 
     override fun registerChangeInMessages(request: UseCaseWorkspaceChannelRequest): Flow<Pair<DomainLayerMessages.SKMessage?, DomainLayerMessages.SKMessage?>> {

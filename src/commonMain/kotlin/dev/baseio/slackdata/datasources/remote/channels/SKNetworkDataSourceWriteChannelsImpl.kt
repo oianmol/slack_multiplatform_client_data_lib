@@ -9,6 +9,7 @@ import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkDataSourceWri
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.withContext
+import java.time.Clock
 
 class SKNetworkDataSourceWriteChannelsImpl(
   private val grpcCalls: IGrpcCalls,
@@ -23,9 +24,7 @@ class SKNetworkDataSourceWriteChannelsImpl(
         when (params) {
           is DomainLayerChannels.SKChannel.SkDMChannel -> {
             grpcCalls.saveDMChannel(kmSKDMChannel {
-              params.uuid.takeIf { it.isNotEmpty() }?.let {
                 uuid = params.uuid
-              }
               workspaceId = params.workId
               createdDate = params.createdDate
               modifiedDate = params.modifiedDate

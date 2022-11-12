@@ -48,7 +48,7 @@ class SKNetworkSourceChannelImpl(
         workspaceId: String
     ): List<DomainLayerChannels.SkChannelMember> {
         val rsaEcdsaKeyManager = RsaEcdsaKeyManagerInstances.getInstance(channelId)
-        val privateKey = rsaEcdsaKeyManager.getPrivateKey()
+        val channelPrivateKey = rsaEcdsaKeyManager.getPrivateKey()
 
         val user = kotlin.runCatching {
             skLocalDataSourceUsers.getUserByUserName(workspaceId, userName)
@@ -58,7 +58,7 @@ class SKNetworkSourceChannelImpl(
         user?.let {
             // here we encrypt the channel's private key with the invited users public key
             val encrypted = iDataEncrypter.encrypt(
-                privateKey.encoded,
+                channelPrivateKey.encoded,
                 user.publicKey!!.keyBytes
             )
             return inviteUserInternal(userName, channelId, encrypted)

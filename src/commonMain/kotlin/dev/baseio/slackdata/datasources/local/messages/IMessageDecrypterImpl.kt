@@ -41,12 +41,12 @@ class IMessageDecrypterImpl(
     ): DomainLayerMessages.SKMessage {
         var messageFinal = skLastMessage
         runCatching {
-            messageFinal =
-                messageFinal.copy(
-                    decodedMessage = iDataDecrypter.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
-                        .decodeToString()
-                )
-        }
+                messageFinal =
+                    messageFinal.copy(
+                        decodedMessage = iDataDecrypter.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
+                            .decodeToString()
+                    )
+            }.exceptionOrNull()?.printStackTrace()
         return messageFinal
     }
 }

@@ -23,13 +23,15 @@ class IMessageDecrypterImpl(
             skKeyValueData.skUser().uuid
         )?.channelEncryptedPrivateKey?.keyBytes
 
-        val decryptedPrivateKeyBytes =
-            channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
-                iDataDecrypter.decrypt(
+        var decryptedPrivateKeyBytes: ByteArray? = null
+        channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
+            kotlin.runCatching {
+                decryptedPrivateKeyBytes = iDataDecrypter.decrypt(
                     safeChannelEncryptedPrivateKey,
                     myPrivateKey
                 )
             }
+        }
 
         return decryptedPrivateKeyBytes?.let { bytes -> finalMessageAfterDecryption(message, bytes) }
     }
@@ -41,12 +43,12 @@ class IMessageDecrypterImpl(
     ): DomainLayerMessages.SKMessage {
         var messageFinal = skLastMessage
         runCatching {
-                messageFinal =
-                    messageFinal.copy(
-                        decodedMessage = iDataDecrypter.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
-                            .decodeToString()
-                    )
-            }.exceptionOrNull()?.printStackTrace()
+            messageFinal =
+                messageFinal.copy(
+                    decodedMessage = iDataDecrypter.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
+                        .decodeToString()
+                )
+        }.exceptionOrNull()?.printStackTrace()
         return messageFinal
     }
 }

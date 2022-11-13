@@ -1,4 +1,4 @@
-package dev.baseio.slackdata
+package slackdata
 
 import co.touchlab.sqliter.DatabaseConfiguration
 import com.squareup.sqldelight.db.SqlDriver
@@ -43,18 +43,18 @@ actual class DriverFactory {
   }
 
   actual fun createDriver(schema: SqlDriver.Schema): SqlDriver {
-   return NativeSqliteDriver(DatabaseConfiguration(
-     name = "SlackDB.db",
-     version = schema.version,
-     create = { connection ->
-       wrapConnection(connection) { schema.create(it) }
-     },
-     upgrade = { connection, oldVersion, newVersion ->
-       wrapConnection(connection) {
-         schema.migrate(it, oldVersion, newVersion)
-       }
-     },
-   ))
+    return NativeSqliteDriver(DatabaseConfiguration(
+      name = "SlackDB.db",
+      version = schema.version,
+      create = { connection ->
+        wrapConnection(connection) { schema.create(it) }
+      },
+      upgrade = { connection, oldVersion, newVersion ->
+        wrapConnection(connection) {
+          schema.migrate(it, oldVersion, newVersion)
+        }
+      },
+    ))
   }
 
 

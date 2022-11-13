@@ -1,4 +1,4 @@
-package dev.baseio.slackdata
+package slackdata
 
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.setValue

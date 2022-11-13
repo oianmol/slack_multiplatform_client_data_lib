@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import io.github.timortel.kotlin_multiplatform_grpc_lib.KMMetadata
 
 class GrpcCalls(
-  private val address: String = "192.168.1.2",
+  private val address: String = "192.168.1.9",
   private val port: Int = 17600,
   override val skKeyValueData: SKLocalKeyValueSource
 ) : IGrpcCalls {

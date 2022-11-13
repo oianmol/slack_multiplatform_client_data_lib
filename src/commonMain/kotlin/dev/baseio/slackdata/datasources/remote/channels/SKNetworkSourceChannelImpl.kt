@@ -1,6 +1,9 @@
 package dev.baseio.slackdata.datasources.remote.channels
 
 import dev.baseio.grpc.IGrpcCalls
+import dev.baseio.security.HybridRsaUtils
+import dev.baseio.security.OAEPParameterSpec
+import dev.baseio.security.Padding
 import dev.baseio.security.RsaEcdsaKeyManagerInstances
 import dev.baseio.slackdata.datasources.local.channels.skUser
 import dev.baseio.slackdomain.datasources.IDataDecryptor
@@ -10,9 +13,6 @@ import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChanne
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkSourceChannel
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
-import java.security.interfaces.RSAKey
-import java.security.interfaces.RSAPrivateKey
-
 class SKNetworkSourceChannelImpl(
     private val grpcCalls: IGrpcCalls,
     private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
@@ -54,9 +54,10 @@ class SKNetworkSourceChannelImpl(
             skLocalKeyValueSource.skUser().uuid
         )!!.channelEncryptedPrivateKey.keyBytes
         val myPrivateKeyForDecrypting =
-            RsaEcdsaKeyManagerInstances.getInstance(skLocalKeyValueSource.skUser().email!!).getPrivateKey().encoded
-        val decryptedChannelPrivateKeyForLoggedInUser =
-            iDataDecryptor.decrypt(channelEncryptedPrivateKeyForLoggedInUser, myPrivateKeyForDecrypting)
+            RsaEcdsaKeyManagerInstances.getInstance(skLocalKeyValueSource.skUser().email!!).getPrivateKey()
+        val decryptedChannelPrivateKeyForLoggedInUser = HybridRsaUtils.decrypt(
+            channelEncryptedPrivateKeyForLoggedInUser, myPrivateKeyForDecrypting, Padding.OAEP, OAEPParameterSpec()
+        )
         val channelPrivateKeyEncryptedForInvitedUser = iDataEncrypter.encrypt(
             decryptedChannelPrivateKeyForLoggedInUser,
             skLocalDataSourceUsers.getUserByUserName(channel.workspaceId, userName)!!.publicKey!!.keyBytes

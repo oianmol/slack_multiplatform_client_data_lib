@@ -1,4 +1,4 @@
-package slackdata
+package dev.baseio.slackdata
 
 import co.touchlab.sqliter.DatabaseConfiguration
 import com.squareup.sqldelight.db.SqlDriver

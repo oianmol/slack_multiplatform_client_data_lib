@@ -16,7 +16,7 @@ class IMessageDecrypterImpl(
     override fun decrypted(message: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage? {
         val myPrivateKey =
             RsaEcdsaKeyManagerInstances.getInstance(skKeyValueData.skUser().email!!).getPrivateKey().encoded
-
+        TODO("on android .getPrivateKey().encoded will fail!")
         val channelEncryptedPrivateKey = skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
             message.workspaceId,
             message.channelId,

@@ -91,6 +91,12 @@ SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid;
 selectPublicChannelById:
 SELECT * FROM skPublicChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
 
+selectPublicChannelByChannelId:
+SELECT * FROM skPublicChannel WHERE uuid = :channelId;
+
+selectDMChannelByChannelId:
+SELECT * FROM skDMChannel WHERE uuid = :channelId;
+
 selectDMChannelById:
 SELECT * FROM skDMChannel WHERE workspaceId=:workspaceid AND uuid = :channelId;
 

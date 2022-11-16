@@ -155,7 +155,7 @@ grpcKotlinMultiplatform {
 
 dependencies {
     commonMainApi("io.github.timortel:grpc-multiplatform-lib:0.2.2")
-    commonMainApi(project(Lib.Project.CAPILLARY_KMP))
+    commonMainApi("dev.baseio.slackcrypto:capillary-kmp:1.0")
 }
 
 kotlin {

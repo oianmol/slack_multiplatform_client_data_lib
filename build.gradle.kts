@@ -3,7 +3,7 @@ import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExte
 
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.10"
     id("com.android.library")
     kotlin("native.cocoapods")
     id("com.google.protobuf") version "0.8.19"
@@ -41,15 +41,6 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-
-    cocoapods {
-        summary = "GRPC Kotlin Multiplatform test library"
-        homepage = "https://github.com/TimOrtel/GRPC-Kotlin-Multiplatform"
-        ios.deploymentTarget = "14.0"
-
-        pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
-        pod("Protobuf")
-    }
 
     sourceSets {
         val commonMain by getting {
@@ -186,11 +177,6 @@ sqldelight {
 
 
 android {
-    lint{
-        this.abortOnError = false
-        this.checkReleaseBuilds = false
-        //baseline = file("lint-baseline.xml")
-    }
     compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
@@ -203,4 +189,3 @@ android {
     }
 }
 
-tasks.replace("podGenIOS", PatchedPodGenTask::class)

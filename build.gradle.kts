@@ -53,7 +53,7 @@ kotlin {
                 implementation(Lib.Async.COROUTINES)
                 implementation(project(Lib.Project.SLACK_DOMAIN_COMMON))
                 implementation(kotlin("stdlib-common"))
-                implementation("io.github.timortel:grpc-multiplatform-lib:0.2.2")
+                api("io.github.timortel:grpc-multiplatform-lib:0.2.2")
             }
             kotlin.srcDirs(
                 projectDir.resolve("build/generated/source/kmp-grpc/commonMain/kotlin").canonicalPath,
@@ -78,7 +78,7 @@ kotlin {
                 implementation(Deps.SqlDelight.androidDriver)
                 implementation("androidx.security:security-crypto-ktx:1.1.0-alpha04")
                 api(project(":slack_generate_protos"))
-                implementation("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
+                api("io.github.timortel:grpc-multiplatform-lib-android:0.2.2")
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
@@ -129,7 +129,7 @@ kotlin {
                 implementation(Deps.Kotlinx.JVM.coroutinesSwing)
                 implementation(Deps.SqlDelight.jvmDriver)
                 api(project(":slack_generate_protos"))
-                implementation("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
+                api("io.github.timortel:grpc-multiplatform-lib-jvm:0.2.2")
                 implementation("io.ktor:ktor-client-java:$ktor_version")
             }
         }
@@ -155,7 +155,6 @@ grpcKotlinMultiplatform {
 }
 
 dependencies {
-    commonMainApi("io.github.timortel:grpc-multiplatform-lib:0.2.2")
     commonMainApi("dev.baseio.slackcrypto:capillary-kmp:1.0")
 }
 

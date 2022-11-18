@@ -38,9 +38,13 @@ kotlin {
     android(){
         publishLibraryVariants("release")
     }
-    ios()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     cocoapods {
+        summary = "GRPC Kotlin Multiplatform test library"
+        homepage = "https://github.com/TimOrtel/GRPC-Kotlin-Multiplatform"
         ios.deploymentTarget = "14.0"
 
         pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
@@ -64,7 +68,12 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/commonMain/kotlin").canonicalPath,
             )
         }
-
+        val sqlDriverNativeMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("com.squareup.sqldelight:native-driver:1.5.3")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -82,8 +91,26 @@ kotlin {
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
+        val iosArm64Main by getting {
+            dependsOn(sqlDriverNativeMain)
+            dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesArm64)
+            }
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(sqlDriverNativeMain)
+            dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesiossimulatorarm64)
+            }
+        }
+        val iosX64Main by getting {
+            dependsOn(sqlDriverNativeMain)
+            dependencies {
+                implementation(Deps.Kotlinx.IOS.coroutinesX64)
+            }
+        }
 
-        val iosMain by getting{
+        val iosMain by creating{
             kotlin.srcDirs(
                 projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
             )
@@ -91,6 +118,10 @@ kotlin {
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
             }
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
         }
 
 
@@ -123,7 +154,9 @@ grpcKotlinMultiplatform {
     targetSourcesMap.put(
         OutputTarget.IOS,
         listOf(
-            kotlin.sourceSets.getByName("iosMain"),
+            kotlin.sourceSets.getByName("iosArm64Main"),
+            kotlin.sourceSets.getByName("iosSimulatorArm64Main"),
+            kotlin.sourceSets.getByName("iosX64Main")
         )
     )
     //Specify the folders where your proto files are located, you can list multiple.
@@ -156,9 +189,9 @@ android {
     lint{
         this.abortOnError = false
         this.checkReleaseBuilds = false
-        baseline = file("lint-baseline.xml")
+        //baseline = file("lint-baseline.xml")
     }
-    compileSdk = (33)
+    compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = (24)

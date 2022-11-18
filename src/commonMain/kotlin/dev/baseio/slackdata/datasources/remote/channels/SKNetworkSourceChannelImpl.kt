@@ -4,7 +4,7 @@ import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.security.HybridRsaUtils
 import dev.baseio.security.OAEPParameterSpec
 import dev.baseio.security.Padding
-import dev.baseio.security.RsaEcdsaKeyManagerInstances
+import dev.baseio.security.CapillaryInstances
 import dev.baseio.slackdata.datasources.local.channels.skUser
 import dev.baseio.slackdomain.datasources.IDataDecryptor
 import dev.baseio.slackdomain.datasources.IDataEncrypter
@@ -53,10 +53,10 @@ class SKNetworkSourceChannelImpl(
             channel.channelId,
             skLocalKeyValueSource.skUser().uuid
         )!!.channelEncryptedPrivateKey.keyBytes
-        val myPrivateKeyForDecrypting =
-            RsaEcdsaKeyManagerInstances.getInstance(skLocalKeyValueSource.skUser().email!!).getPrivateKey()
-        val decryptedChannelPrivateKeyForLoggedInUser = HybridRsaUtils.decrypt(
-            channelEncryptedPrivateKeyForLoggedInUser, myPrivateKeyForDecrypting, Padding.OAEP, OAEPParameterSpec()
+        val capillary =
+            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().email!!)
+        val decryptedChannelPrivateKeyForLoggedInUser = capillary.decrypt(
+            channelEncryptedPrivateKeyForLoggedInUser, capillary.privateKey()
         )
         val channelPrivateKeyEncryptedForInvitedUser = iDataEncrypter.encrypt(
             decryptedChannelPrivateKeyForLoggedInUser,

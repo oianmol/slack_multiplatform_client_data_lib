@@ -5,6 +5,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization") version "1.7.20"
     id("com.android.library")
+    kotlin("native.cocoapods")
     id("com.google.protobuf") version "0.8.19"
     id("com.squareup.sqldelight")
     id("maven-publish")
@@ -37,9 +38,14 @@ kotlin {
     android(){
         publishLibraryVariants("release")
     }
-    iosArm64()
-    iosSimulatorArm64()
-    iosX64()
+    ios()
+
+    cocoapods {
+        ios.deploymentTarget = "14.0"
+
+        pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
+        pod("Protobuf")
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -58,12 +64,7 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/commonMain/kotlin").canonicalPath,
             )
         }
-        val sqlDriverNativeMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("com.squareup.sqldelight:native-driver:1.5.3")
-            }
-        }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -81,26 +82,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
         }
-        val iosArm64Main by getting {
-            dependsOn(sqlDriverNativeMain)
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesArm64)
-            }
-        }
-        val iosSimulatorArm64Main by getting {
-            dependsOn(sqlDriverNativeMain)
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesiossimulatorarm64)
-            }
-        }
-        val iosX64Main by getting {
-            dependsOn(sqlDriverNativeMain)
-            dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesX64)
-            }
-        }
 
-        val iosMain by creating{
+        val iosMain by getting{
             kotlin.srcDirs(
                 projectDir.resolve("build/generated/source/kmp-grpc/iosMain/kotlin").canonicalPath,
             )
@@ -108,10 +91,6 @@ kotlin {
                 implementation("com.squareup.sqldelight:native-driver:1.5.3")
                 implementation("io.ktor:ktor-client-darwin:$ktor_version")
             }
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
         }
 
 
@@ -144,9 +123,7 @@ grpcKotlinMultiplatform {
     targetSourcesMap.put(
         OutputTarget.IOS,
         listOf(
-            kotlin.sourceSets.getByName("iosArm64Main"),
-            kotlin.sourceSets.getByName("iosSimulatorArm64Main"),
-            kotlin.sourceSets.getByName("iosX64Main")
+            kotlin.sourceSets.getByName("iosMain"),
         )
     )
     //Specify the folders where your proto files are located, you can list multiple.
@@ -192,3 +169,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
+tasks.replace("podGenIOS", PatchedPodGenTask::class)

@@ -2,7 +2,7 @@ package dev.baseio.slackdata.datasources.local.messages
 
 import database.SlackMessage
 import dev.baseio.database.SlackDB
-import dev.baseio.security.RsaEcdsaKeyManagerInstances
+import dev.baseio.security.CapillaryInstances
 import dev.baseio.slackdata.datasources.local.channels.skUser
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow

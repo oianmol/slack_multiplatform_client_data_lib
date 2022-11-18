@@ -14,8 +14,8 @@ class IMessageDecrypterImpl(
     private val skLocalDataSourceChannelMembers: SKLocalDataSourceChannelMembers,
 ) : IMessageDecrypter {
     override fun decrypted(message: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage? {
-        val myPrivateKey =
-        RsaEcdsaKeyManagerInstances.getInstance(skKeyValueData.skUser().email!!).getPrivateKey()
+        val capillary =
+        CapillaryInstances.getInstance(skKeyValueData.skUser().email!!)
         val channelEncryptedPrivateKey = skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
             message.workspaceId,
             message.channelId,
@@ -25,8 +25,8 @@ class IMessageDecrypterImpl(
         var decryptedPrivateKeyBytes: ByteArray? = null
         channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
             kotlin.runCatching {
-                decryptedPrivateKeyBytes =  HybridRsaUtils.decrypt(
-                    safeChannelEncryptedPrivateKey, myPrivateKey, Padding.OAEP, OAEPParameterSpec()
+                decryptedPrivateKeyBytes =  capillary.decrypt(
+                    safeChannelEncryptedPrivateKey, capillary.privateKey()
                 )
             }.exceptionOrNull()?.printStackTrace()
         }

@@ -3,7 +3,7 @@ import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExte
 
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.20"
     id("com.android.library")
     kotlin("native.cocoapods")
     id("com.google.protobuf") version "0.8.19"

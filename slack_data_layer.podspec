@@ -1,15 +1,16 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'slack_data_layer'
     spec.version                  = '1.0'
-    spec.homepage                 = 'Link to the Shared Module homepage'
+    spec.homepage                 = 'https://github.com/TimOrtel/GRPC-Kotlin-Multiplatform'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
     spec.license                  = ''
-    spec.summary                  = 'Some description for the Shared Module'
+    spec.summary                  = 'GRPC Kotlin Multiplatform test library'
     spec.vendored_frameworks      = 'build/cocoapods/framework/slack_data_layer.framework'
     spec.libraries                = 'c++'
     spec.ios.deployment_target = '14.1'
-                
+    spec.dependency 'Protobuf'
+    spec.dependency 'gRPC-ProtoRPC'
                 
     spec.pod_target_xcconfig = {
         'KOTLIN_PROJECT_PATH' => ':slack_data_layer',

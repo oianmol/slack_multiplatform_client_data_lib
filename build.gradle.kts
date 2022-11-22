@@ -43,48 +43,17 @@ kotlin {
         summary = "GRPC Kotlin Multiplatform test library"
         homepage = "https://github.com/TimOrtel/GRPC-Kotlin-Multiplatform"
         ios.deploymentTarget = "14.1"
-
+        framework {
+            baseName = "slack_data_layer"
+        }
         pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
         pod("Protobuf")
     }
 
-    val iosX64 = iosX64()
-    val iosArm64 = iosArm64()
-    val iosSimulatorArm64 = iosSimulatorArm64()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
-    configure(listOf(iosX64, iosArm64,iosSimulatorArm64)) {
-        binaries.framework {
-            baseName = "slack_data_layer"
-        }
-    }
-
-    // Create a task to build a fat framework.
-    tasks.register<org.jetbrains.kotlin.gradle.tasks.FatFrameworkTask>("debugFatFramework") {
-        // The fat framework must have the same base name as the initial frameworks.
-        baseName = "slack_data_layer"
-        // The default destination directory is "<build directory>/fat-framework".
-        destinationDir = buildDir.resolve("fat-framework/debug")
-        // Specify the frameworks to be merged.
-        from(
-            iosArm64.binaries.getFramework("DEBUG"),
-            iosX64.binaries.getFramework("DEBUG"),
-            //iosSimulatorArm64.binaries.getFramework("DEBUG")
-        )
-    }
-
-    // Create a task to build a fat framework.
-    tasks.register<org.jetbrains.kotlin.gradle.tasks.FatFrameworkTask>("releaseFatFramework") {
-        // The fat framework must have the same base name as the initial frameworks.
-        baseName = "slack_data_layer"
-        // The default destination directory is "<build directory>/fat-framework".
-        destinationDir = buildDir.resolve("fat-framework/release")
-        // Specify the frameworks to be merged.
-        from(
-            iosArm64.binaries.getFramework("RELEASE"),
-            iosX64.binaries.getFramework("RELEASE"),
-            //iosSimulatorArm64.binaries.getFramework("RELEASE")
-        )
-    }
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -228,3 +197,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
+tasks.replace("podGenIOS", PatchedPodGenTask::class)

@@ -40,8 +40,8 @@ kotlin {
     }
 
     cocoapods {
-        summary = "GRPC Kotlin Multiplatform test library"
-        homepage = "https://github.com/TimOrtel/GRPC-Kotlin-Multiplatform"
+        summary = "Slack Data Library"
+        homepage = "https://github.com/oianmol"
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "slack_data_layer"

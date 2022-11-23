@@ -10,6 +10,7 @@ plugins {
     id("com.google.protobuf") version "0.8.19"
     id("com.squareup.sqldelight")
     id("maven-publish")
+    id("com.rickclephas.kmp.nativecoroutines")
     id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
 }
 

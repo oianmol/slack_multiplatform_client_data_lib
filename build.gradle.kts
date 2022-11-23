@@ -46,9 +46,8 @@ kotlin {
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "slack_data_layer"
+            isStatic = true
         }
-        pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
-        pod("Protobuf")
     }
 
     iosX64()

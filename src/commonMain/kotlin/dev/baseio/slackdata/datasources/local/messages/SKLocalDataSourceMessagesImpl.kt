@@ -2,29 +2,20 @@ package dev.baseio.slackdata.datasources.local.messages
 
 import database.SlackMessage
 import dev.baseio.database.SlackDB
-import dev.baseio.security.CapillaryInstances
-import dev.baseio.slackdata.datasources.local.channels.skUser
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.mapper.EntityMapper
-import dev.baseio.slackdomain.datasources.IDataDecryptor
-import dev.baseio.slackdomain.datasources.IDataEncrypter
-import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.datasources.local.messages.IMessageDecrypter
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdomain.datasources.local.messages.SKLocalDataSourceMessages
-import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
-class SKLocalDataSourceMessagesImpl constructor(
+class SKLocalDataSourceMessagesImpl(
     private val slackMessageDao: SlackDB,
     private val entityMapper: EntityMapper<DomainLayerMessages.SKMessage, SlackMessage>,
     private val coroutineMainDispatcherProvider: CoroutineDispatcherProvider,
-    private val iDataEncrypter: IDataEncrypter,
-    private val iDataDecryptor: IDataDecryptor,
-    private val skLocalKeyValueSource: SKLocalKeyValueSource,
     private val iMessageDecrypter: IMessageDecrypter
 ) : SKLocalDataSourceMessages {
 

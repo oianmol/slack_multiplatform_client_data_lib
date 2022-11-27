@@ -10,6 +10,7 @@ plugins {
     id("com.google.protobuf") version "0.8.19"
     id("com.squareup.sqldelight")
     id("maven-publish")
+    id("com.rickclephas.kmp.nativecoroutines")
     id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
 }
 
@@ -45,9 +46,8 @@ kotlin {
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "slack_data_layer"
+            isStatic = true
         }
-        pod("gRPC-ProtoRPC", moduleName = "GRPCClient")
-        pod("Protobuf")
     }
 
     iosX64()

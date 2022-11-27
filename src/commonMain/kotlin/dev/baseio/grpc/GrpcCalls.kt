@@ -1,6 +1,5 @@
 package dev.baseio.grpc
 
-
 import dev.baseio.slackdata.common.KMEmpty
 import dev.baseio.slackdata.common.kmEmpty
 import dev.baseio.slackdata.common.kmSKByteArrayElement
@@ -15,7 +14,7 @@ import io.github.timortel.kotlin_multiplatform_grpc_lib.KMMetadata
 
 class GrpcCalls(
     private val address: String = "localhost",
-    private val port: Int = 17600,
+    private val port: Int = 8081,
     override val skKeyValueData: SKLocalKeyValueSource
 ) : IGrpcCalls {
     companion object {
@@ -198,7 +197,7 @@ class GrpcCalls(
         return channelsStub.inviteUserToChannel(kmSKInviteUserChannel {
             this.channelId = channelId
             this.userId = userId
-            this.channelPrivateKey = kmSlackPublicKey {
+            this.channelPrivateKey = kmSlackKey {
                 this.keybytesList.addAll(skUserPublicKey.keyBytes.map {
                     kmSKByteArrayElement {
                         byte = it.toInt()

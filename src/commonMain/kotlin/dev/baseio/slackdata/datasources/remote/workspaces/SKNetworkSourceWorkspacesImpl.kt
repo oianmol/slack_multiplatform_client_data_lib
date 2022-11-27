@@ -7,7 +7,7 @@ import dev.baseio.slackdata.protos.kmSKAuthUser
 import dev.baseio.slackdata.protos.kmSKCreateWorkspaceRequest
 import dev.baseio.slackdata.protos.kmSKUser
 import dev.baseio.slackdata.protos.kmSKWorkspace
-import dev.baseio.slackdata.protos.kmSlackPublicKey
+import dev.baseio.slackdata.protos.kmSlackKey
 import dev.baseio.slackdomain.datasources.remote.workspaces.SKNetworkSourceWorkspaces
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
 
@@ -45,7 +45,7 @@ private fun kmskCreateWorkspaceRequest(
         this.password = password
         this.user = kmSKUser {
             this.email = email
-            this.publicKey = kmSlackPublicKey {
+            this.publicKey = kmSlackKey {
                 this.keybytesList.addAll(publicKey.map {
                     kmSKByteArrayElement {
                         this.byte = it.toInt()

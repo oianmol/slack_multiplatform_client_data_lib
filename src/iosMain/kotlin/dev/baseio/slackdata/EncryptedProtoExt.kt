@@ -10,7 +10,7 @@ actual object ProtoExtensions{
         return serialize().toByteArrayFromNSData()
     }
 
-    actual fun ByteArray.fromKMSKEncryptedMessage(): KMSKEncryptedMessage {
+    actual fun ByteArray.asSKEncryptedMessage(): KMSKEncryptedMessage {
         val with = KMSKEncryptedMessage.deserialize(this)
         return kmSKEncryptedMessage {
             this.firstList.addAll(with.firstList.map {

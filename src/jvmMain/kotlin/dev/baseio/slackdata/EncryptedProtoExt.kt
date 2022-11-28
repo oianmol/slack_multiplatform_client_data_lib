@@ -24,7 +24,7 @@ actual object ProtoExtensions{
             .toByteArray()
     }
 
-    actual fun ByteArray.fromKMSKEncryptedMessage(): KMSKEncryptedMessage {
+    actual fun ByteArray.asSKEncryptedMessage(): KMSKEncryptedMessage {
         val with = SKEncryptedMessage.parseFrom(this)
         return kmSKEncryptedMessage {
             this.firstList.addAll(with.firstList.map {

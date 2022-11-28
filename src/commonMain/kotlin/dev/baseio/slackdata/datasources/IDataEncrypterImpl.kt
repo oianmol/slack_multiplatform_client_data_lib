@@ -10,11 +10,10 @@ class IDataEncrypterImpl : IDataEncrypter {
     override fun encrypt(
         byteArray: ByteArray,
         publicKeyBytes: ByteArray
-    ): Pair<ByteArray, ByteArray> {
-        return CapillaryEncryption.encrypt(
+    ): ByteArray {
+        val encrypted =  CapillaryEncryption.encrypt(
             byteArray, publicKeyBytes.toPublicKey()
-        ).apply {
-            toSKEncryptedMessage().asByteArray()
-        }
+        )
+        return encrypted.toSKEncryptedMessage().asByteArray()
     }
 }

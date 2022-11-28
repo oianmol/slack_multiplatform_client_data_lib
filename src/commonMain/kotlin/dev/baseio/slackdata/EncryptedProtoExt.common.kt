@@ -1,13 +1,13 @@
 package dev.baseio.slackdata
 
-import dev.baseio.slackdata.ProtoExtensions.fromKMSKEncryptedMessage
+import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessage
 import dev.baseio.slackdata.common.kmSKByteArrayElement
 import dev.baseio.slackdata.protos.KMSKEncryptedMessage
 import dev.baseio.slackdata.protos.kmSKEncryptedMessage
 
 expect object ProtoExtensions {
     fun KMSKEncryptedMessage.asByteArray(): ByteArray
-    fun ByteArray.fromKMSKEncryptedMessage(): KMSKEncryptedMessage
+    fun ByteArray.asSKEncryptedMessage(): KMSKEncryptedMessage
 }
 
 fun Pair<ByteArray, ByteArray>.toSKEncryptedMessage(): KMSKEncryptedMessage {
@@ -26,7 +26,7 @@ fun Pair<ByteArray, ByteArray>.toSKEncryptedMessage(): KMSKEncryptedMessage {
 }
 
 fun ByteArray.asEncryptedData(): Pair<ByteArray, ByteArray> {
-    val encryptedMessage = fromKMSKEncryptedMessage()
+    val encryptedMessage = asSKEncryptedMessage()
     return Pair(
         encryptedMessage.firstList.map { it.byte.toByte() }.toByteArray(),
         encryptedMessage.secondList.map { it.byte.toByte() }.toByteArray()

@@ -2,6 +2,7 @@ package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.ProtoExtensions.asByteArray
+import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessage
 import dev.baseio.slackdata.asEncryptedData
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
@@ -61,7 +62,7 @@ class SKNetworkDataSourceMessagesImpl(
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            text = encryptedMessage.toSKEncryptedMessage()
+            text = encryptedMessage.asSKEncryptedMessage()
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate

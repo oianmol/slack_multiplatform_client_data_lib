@@ -65,8 +65,7 @@ class SKNetworkSourceChannelImpl(
         ) // TODO fix this ask the backend if not available in local cache!
         return inviteUserInternal(
             userName, channel.channelId,
-            channelPrivateKeyEncryptedForInvitedUser.toSKEncryptedMessage()
-                .asByteArray()
+            channelPrivateKeyEncryptedForInvitedUser
         )
     }
 }

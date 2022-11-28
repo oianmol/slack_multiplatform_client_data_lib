@@ -11,7 +11,7 @@ actual object ProtoExtensions{
     }
 
     actual fun ByteArray.asSKEncryptedMessage(): KMSKEncryptedMessage {
-        val with = KMSKEncryptedMessage.deserialize(this)
+        val with = KMSKEncryptedMessage.deserialize(this.toData())
         return kmSKEncryptedMessage {
             this.firstList.addAll(with.firstList.map {
                 kmSKByteArrayElement {

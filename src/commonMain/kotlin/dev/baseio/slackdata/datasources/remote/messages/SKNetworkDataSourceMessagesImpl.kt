@@ -1,9 +1,11 @@
 package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.IGrpcCalls
-import dev.baseio.slackdata.common.kmSKByteArrayElement
+import dev.baseio.slackdata.ProtoExtensions.asByteArray
+import dev.baseio.slackdata.asEncryptedData
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
+import dev.baseio.slackdata.toSKEncryptedMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
@@ -42,13 +44,7 @@ class SKNetworkDataSourceMessagesImpl(
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            textList.addAll( // don't encrypte the message again!
-                params.message.map {
-                    kmSKByteArrayElement {
-                        this.byte = it.toInt()
-                    }
-                }
-            )
+            text = params.message.asEncryptedData().toSKEncryptedMessage()
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate
@@ -65,13 +61,7 @@ class SKNetworkDataSourceMessagesImpl(
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            textList.addAll(
-                encryptedMessage.map {
-                    kmSKByteArrayElement {
-                        this.byte = it.toInt()
-                    }
-                }
-            )
+            text = encryptedMessage.toSKEncryptedMessage()
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate
@@ -85,7 +75,7 @@ fun KMSKMessage.toDomainLayerMessage(): DomainLayerMessages.SKMessage {
         uuid = params.uuid,
         workspaceId = params.workspaceId,
         channelId = params.channelId,
-        message = params.textList.map { it.byte.toByte() }.toByteArray(),
+        message = params.text.asByteArray(),
         sender = params.sender,
         createdDate = params.createdDate,
         modifiedDate = params.modifiedDate,

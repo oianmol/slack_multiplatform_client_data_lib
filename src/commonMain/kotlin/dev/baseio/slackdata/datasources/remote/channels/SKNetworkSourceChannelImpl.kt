@@ -2,7 +2,10 @@ package dev.baseio.slackdata.datasources.remote.channels
 
 import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.security.CapillaryInstances
+import dev.baseio.slackdata.ProtoExtensions.asByteArray
+import dev.baseio.slackdata.asEncryptedData
 import dev.baseio.slackdata.datasources.local.channels.skUser
+import dev.baseio.slackdata.toSKEncryptedMessage
 import dev.baseio.slackdomain.datasources.IDataDecryptor
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
@@ -10,6 +13,7 @@ import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChanne
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkSourceChannel
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
+
 class SKNetworkSourceChannelImpl(
     private val grpcCalls: IGrpcCalls,
     private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
@@ -53,12 +57,16 @@ class SKNetworkSourceChannelImpl(
         val capillary =
             CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().email!!)
         val decryptedChannelPrivateKeyForLoggedInUser = capillary.decrypt(
-            channelEncryptedPrivateKeyForLoggedInUser, capillary.privateKey()
+            channelEncryptedPrivateKeyForLoggedInUser.asEncryptedData(), capillary.privateKey()
         )
         val channelPrivateKeyEncryptedForInvitedUser = iDataEncrypter.encrypt(
             decryptedChannelPrivateKeyForLoggedInUser,
             skLocalDataSourceUsers.getUserByUserName(channel.workspaceId, userName)!!.publicKey!!.keyBytes
         ) // TODO fix this ask the backend if not available in local cache!
-        return inviteUserInternal(userName, channel.channelId, channelPrivateKeyEncryptedForInvitedUser)
+        return inviteUserInternal(
+            userName, channel.channelId,
+            channelPrivateKeyEncryptedForInvitedUser.toSKEncryptedMessage()
+                .asByteArray()
+        )
     }
 }

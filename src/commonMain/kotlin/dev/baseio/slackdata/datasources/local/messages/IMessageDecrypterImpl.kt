@@ -1,6 +1,7 @@
 package dev.baseio.slackdata.datasources.local.messages
 
 import dev.baseio.security.*
+import dev.baseio.slackdata.asEncryptedData
 import dev.baseio.slackdomain.datasources.local.messages.IMessageDecrypter
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdata.datasources.local.channels.skUser
@@ -26,7 +27,7 @@ class IMessageDecrypterImpl(
         channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
             kotlin.runCatching {
                 decryptedPrivateKeyBytes =  capillary.decrypt(
-                    safeChannelEncryptedPrivateKey, capillary.privateKey()
+                    safeChannelEncryptedPrivateKey.asEncryptedData(), capillary.privateKey()
                 )
             }.exceptionOrNull()?.printStackTrace()
         }
@@ -43,10 +44,11 @@ class IMessageDecrypterImpl(
         runCatching {
             messageFinal =
                 messageFinal.copy(
-                    decodedMessage = iDataDecrypter.decrypt(messageFinal.message, privateKeyBytes = privateKeyBytes)
+                    decodedMessage = iDataDecrypter.decrypt(messageFinal.message.asEncryptedData(), privateKeyBytes = privateKeyBytes)
                         .decodeToString()
                 )
         }.exceptionOrNull()?.printStackTrace()
         return messageFinal
     }
 }
+

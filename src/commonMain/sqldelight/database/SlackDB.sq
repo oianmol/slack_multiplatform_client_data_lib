@@ -128,7 +128,8 @@ CREATE TABLE IF NOT EXISTS slackChannelMember(
      workspaceId TEXT  NOT NULL ,
      channelId TEXT  NOT NULL ,
      memberId TEXT  NOT NULL,
-     channelPrivateKey BLOB NOT NULL
+     channelPrivateKeyFirst TEXT NOT NULL,
+          channelPrivateKeySecond TEXT NOT NULL
 );
 
 getChannelPrivateKeyForUser:
@@ -136,7 +137,7 @@ SELECT * FROM slackChannelMember WHERE channelId=:channelId AND workspaceId=:wor
 
 
 insertMember:
-INSERT OR REPLACE INTO slackChannelMember(uuid,workspaceId,channelId,memberId,channelPrivateKey) VALUES (?,?,?,?,?);
+INSERT OR REPLACE INTO slackChannelMember(uuid,workspaceId,channelId,memberId,channelPrivateKeyFirst,channelPrivateKeySecond) VALUES (?,?,?,?,?,?);
 
 selectAllMembers:
 SELECT * FROM slackChannelMember WHERE channelId=:channelId AND workspaceId=:workspaceId;
@@ -161,7 +162,8 @@ CREATE TABLE IF NOT EXISTS slackMessage(
     uuid TEXT NOT NULL PRIMARY KEY,
     workspaceId TEXT  NOT NULL ,
     channelId TEXT  NOT NULL ,
-    message BLOB NOT NULL ,
+    messageFirst TEXT NOT NULL ,
+      messageSecond TEXT NOT NULL ,
     sender TEXT  NOT NULL ,
     createdDate INTEGER  NOT NULL ,
     modifiedDate INTEGER  NOT NULL,
@@ -170,7 +172,7 @@ CREATE TABLE IF NOT EXISTS slackMessage(
 );
 
 insertMessage:
-INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,message,sender,createdDate,modifiedDate,isDeleted,isSynced) VALUES(?,?,?,?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackMessage(uuid,workspaceId,channelId,messageFirst,messageSecond,sender,createdDate,modifiedDate,isDeleted,isSynced) VALUES(?,?,?,?,?,?,?,?,?,?);
 
 selectAllMessages:
 SELECT * FROM slackMessage WHERE workspaceId=:workspaceId AND isDeleted = 0 ORDER BY modifiedDate DESC;

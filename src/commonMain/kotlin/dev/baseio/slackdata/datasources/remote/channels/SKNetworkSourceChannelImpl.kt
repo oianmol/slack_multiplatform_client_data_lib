@@ -76,6 +76,5 @@ class SKNetworkSourceChannelImpl(
 }
 
 fun KMSKEncryptedMessage.toDomainSKEncryptedMessage(): DomainLayerUsers.SKEncryptedMessage {
-    return DomainLayerUsers.SKEncryptedMessage(this.firstList.map { it.byte.toByte() }
-        .toByteArray(), this.secondList.map { it.byte.toByte() }.toByteArray())
+    return DomainLayerUsers.SKEncryptedMessage(this.first, this.second)
 }

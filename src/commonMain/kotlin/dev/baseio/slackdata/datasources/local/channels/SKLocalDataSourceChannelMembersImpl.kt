@@ -2,9 +2,6 @@ package dev.baseio.slackdata.datasources.local.channels
 
 import database.SlackChannelMember
 import dev.baseio.database.SlackDB
-import dev.baseio.slackdata.ProtoExtensions.asByteArray
-import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessageFromBytes
-import dev.baseio.slackdata.common.kmSKByteArrayElement
 import dev.baseio.slackdata.datasources.remote.channels.toDomainSKEncryptedMessage
 import dev.baseio.slackdata.local.asFlow
 import dev.baseio.slackdata.local.mapToList
@@ -60,7 +57,8 @@ class SKLocalDataSourceChannelMembersImpl(
                     skChannelMember.workspaceId,
                     skChannelMember.channelId,
                     skChannelMember.memberId,
-                    skChannelMember.channelEncryptedPrivateKey.asKMSKEncryptedMessage()
+                    skChannelMember.channelEncryptedPrivateKey.first,
+                    skChannelMember.channelEncryptedPrivateKey.second
                 )
             }
         }
@@ -68,33 +66,10 @@ class SKLocalDataSourceChannelMembersImpl(
     }
 }
 
-fun DomainLayerUsers.SKEncryptedMessage.asKMSKEncryptedMessage(): ByteArray {
-    return kmSKEncryptedMessage {
-        this.firstList.addAll(this@asKMSKEncryptedMessage.first.map {
-            kmSKByteArrayElement {
-                this.byte = it.toInt()
-            }
-        })
-        this.secondList.addAll(this@asKMSKEncryptedMessage.second.map {
-            kmSKByteArrayElement {
-                this.byte = it.toInt()
-            }
-        })
-    }.asByteArray()
-}
-
 fun DomainLayerUsers.SKEncryptedMessage.asKMSKEncryptedMessageRaw(): KMSKEncryptedMessage {
     return kmSKEncryptedMessage {
-        this.firstList.addAll(this@asKMSKEncryptedMessageRaw.first.map {
-            kmSKByteArrayElement {
-                this.byte = it.toInt()
-            }
-        })
-        this.secondList.addAll(this@asKMSKEncryptedMessageRaw.second.map {
-            kmSKByteArrayElement {
-                this.byte = it.toInt()
-            }
-        })
+        this.first = this@asKMSKEncryptedMessageRaw.first
+        this.second = this@asKMSKEncryptedMessageRaw.second
     }
 }
 
@@ -104,6 +79,7 @@ fun SlackChannelMember.toChannelMember(): DomainLayerChannels.SkChannelMember {
         this.workspaceId,
         this.channelId,
         this.memberId,
-        this.channelPrivateKey.asSKEncryptedMessageFromBytes().toDomainSKEncryptedMessage()
+        DomainLayerUsers.SKEncryptedMessage(this.channelPrivateKeyFirst,
+            this.channelPrivateKeySecond)
     )
 }

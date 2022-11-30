@@ -1,7 +1,6 @@
 package dev.baseio.slackdata.datasources.local.messages
 
 import dev.baseio.security.*
-import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessageFromBytes
 import dev.baseio.slackdomain.datasources.local.messages.IMessageDecrypter
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
 import dev.baseio.slackdata.datasources.local.channels.skUser
@@ -59,9 +58,10 @@ class IMessageDecrypterImpl(
             messageFinal =
                 messageFinal.copy(
                     decodedMessage = iDataDecrypter.decrypt(
-                        messageFinal.message.asSKEncryptedMessageFromBytes().toDomainSKEncryptedMessage().run {
-                            Pair(this.first, this.second)
-                        }, privateKeyBytes = privateKeyBytes
+                        Pair(
+                            messageFinal.messageFirst,
+                            messageFinal.messageSecond
+                        ), privateKeyBytes = privateKeyBytes
                     )
                         .decodeToString()
                 )

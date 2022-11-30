@@ -1,10 +1,9 @@
 package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.IGrpcCalls
-import dev.baseio.slackdata.ProtoExtensions.asByteArray
-import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessageFromBytes
 import dev.baseio.slackdata.datasources.local.channels.asKMSKEncryptedMessageRaw
 import dev.baseio.slackdata.protos.KMSKMessage
+import dev.baseio.slackdata.protos.kmSKEncryptedMessage
 import dev.baseio.slackdata.protos.kmSKMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
@@ -44,7 +43,10 @@ class SKNetworkDataSourceMessagesImpl(
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            text = params.message.asSKEncryptedMessageFromBytes()
+            text = kmSKEncryptedMessage {
+                this.first = params.messageFirst
+                this.second = params.messageSecond
+            }
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate
@@ -53,7 +55,7 @@ class SKNetworkDataSourceMessagesImpl(
 
     override suspend fun sendMessage(params: DomainLayerMessages.SKMessage, publicKey: DomainLayerUsers.SKSlackKey): DomainLayerMessages.SKMessage {
         val encryptedMessage :DomainLayerUsers.SKEncryptedMessage = iDataEncrypter.encrypt(
-            params.message,
+            params.decodedMessage.encodeToByteArray(),
             publicKey.keyBytes,
         )
         return grpcCalls.sendMessage(kmSKMessage {
@@ -75,7 +77,8 @@ fun KMSKMessage.toDomainLayerMessage(): DomainLayerMessages.SKMessage {
         uuid = params.uuid,
         workspaceId = params.workspaceId,
         channelId = params.channelId,
-        message = params.text.asByteArray(),
+        messageFirst = params.text.first,
+        messageSecond = params.text.second,
         sender = params.sender,
         createdDate = params.createdDate,
         modifiedDate = params.modifiedDate,

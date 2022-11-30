@@ -201,16 +201,8 @@ class GrpcCalls(
             this.channelId = channelId
             this.userId = userId
             this.channelPrivateKey = kmSKEncryptedMessage {
-                this.firstList.addAll(skSlackKey.first.map {
-                    kmSKByteArrayElement {
-                        this.byte = it.toInt()
-                    }
-                })
-                this.secondList.addAll(skSlackKey.second.map {
-                    kmSKByteArrayElement {
-                        this.byte = it.toInt()
-                    }
-                })
+                this.first = skSlackKey.first
+                this.second = skSlackKey.second
             }
         }, fetchToken(token))
     }

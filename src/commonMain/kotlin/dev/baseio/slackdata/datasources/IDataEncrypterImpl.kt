@@ -12,9 +12,9 @@ class IDataEncrypterImpl : IDataEncrypter {
         byteArray: ByteArray,
         publicKeyBytes: ByteArray
     ): DomainLayerUsers.SKEncryptedMessage {
-        val encrypted =  CapillaryEncryption.encrypt(
+        val encrypted = CapillaryEncryption.encrypt(
             byteArray, publicKeyBytes.toPublicKey()
         )
-        return encrypted.toSKEncryptedMessage().toDomainSKEncryptedMessage()
+        return DomainLayerUsers.SKEncryptedMessage(encrypted.first, encrypted.second)
     }
 }

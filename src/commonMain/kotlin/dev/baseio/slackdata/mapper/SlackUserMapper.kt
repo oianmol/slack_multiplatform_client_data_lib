@@ -35,6 +35,6 @@ fun SlackUser.toSkUser(): DomainLayerUsers.SKUser {
         userSince,
         phone,
         avatarUrl,
-        publicKey = DomainLayerUsers.SKUserPublicKey(this.publicKey)
+        publicKey = DomainLayerUsers.SKSlackKey(this.publicKey)
     )
 }

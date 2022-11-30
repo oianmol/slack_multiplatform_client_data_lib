@@ -14,7 +14,11 @@ import dev.baseio.slackdomain.model.users.DomainLayerUsers
 class SKNetworkSourceWorkspacesImpl(
     private val grpcCalls: IGrpcCalls,
 ) : SKNetworkSourceWorkspaces {
-    override suspend fun saveWorkspace(email: String, password: String, domain: String): DomainLayerUsers.SKAuthResult {
+    override suspend fun saveWorkspace(
+        email: String,
+        password: String,
+        domain: String
+    ): DomainLayerUsers.SKAuthResult {
         val publicKey = CapillaryInstances.getInstance(email).publicKey()
         return kotlin.run {
             val result = grpcCalls.saveWorkspace(

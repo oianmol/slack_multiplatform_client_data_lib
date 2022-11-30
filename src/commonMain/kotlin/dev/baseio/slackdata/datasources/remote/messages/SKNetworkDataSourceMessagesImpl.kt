@@ -2,11 +2,10 @@ package dev.baseio.slackdata.datasources.remote.messages
 
 import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.slackdata.ProtoExtensions.asByteArray
-import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessage
-import dev.baseio.slackdata.asEncryptedData
+import dev.baseio.slackdata.ProtoExtensions.asSKEncryptedMessageFromBytes
+import dev.baseio.slackdata.datasources.local.channels.asKMSKEncryptedMessageRaw
 import dev.baseio.slackdata.protos.KMSKMessage
 import dev.baseio.slackdata.protos.kmSKMessage
-import dev.baseio.slackdata.toSKEncryptedMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.remote.messages.SKNetworkDataSourceMessages
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
@@ -38,22 +37,22 @@ class SKNetworkDataSourceMessagesImpl(
 
     override suspend fun deleteMessage(
         params: DomainLayerMessages.SKMessage,
-        publicKey: DomainLayerUsers.SKUserPublicKey
+        publicKey: DomainLayerUsers.SKSlackKey
     ): DomainLayerMessages.SKMessage {
         return grpcCalls.sendMessage(kmSKMessage {
             uuid = params.uuid
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            text = params.message.asEncryptedData().toSKEncryptedMessage()
+            text = params.message.asSKEncryptedMessageFromBytes()
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate
         }).toDomainLayerMessage()
     }
 
-    override suspend fun sendMessage(params: DomainLayerMessages.SKMessage, publicKey: DomainLayerUsers.SKUserPublicKey): DomainLayerMessages.SKMessage {
-        val encryptedMessage = iDataEncrypter.encrypt(
+    override suspend fun sendMessage(params: DomainLayerMessages.SKMessage, publicKey: DomainLayerUsers.SKSlackKey): DomainLayerMessages.SKMessage {
+        val encryptedMessage :DomainLayerUsers.SKEncryptedMessage = iDataEncrypter.encrypt(
             params.message,
             publicKey.keyBytes,
         )
@@ -62,7 +61,7 @@ class SKNetworkDataSourceMessagesImpl(
             workspaceId = params.workspaceId
             isDeleted = params.isDeleted
             channelId = params.channelId
-            text = encryptedMessage.asSKEncryptedMessage()
+            text = encryptedMessage.asKMSKEncryptedMessageRaw()
             sender = params.sender
             createdDate = params.createdDate
             modifiedDate = params.modifiedDate

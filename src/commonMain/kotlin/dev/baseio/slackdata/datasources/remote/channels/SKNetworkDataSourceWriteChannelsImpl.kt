@@ -53,7 +53,7 @@ class SKNetworkDataSourceWriteChannelsImpl(
     }
 }
 
-fun DomainLayerUsers.SKUserPublicKey.toByteArray(): ByteArray {
+fun DomainLayerUsers.SKSlackKey.toByteArray(): ByteArray {
     return this.keyBytes
 }
 
@@ -67,7 +67,7 @@ fun ByteArray.toKMSlackPublicKey(): KMSlackKey {
     }
 }
 
-fun ByteArray.toSKUserPublicKey(): DomainLayerUsers.SKUserPublicKey {
+fun ByteArray.toSKUserPublicKey(): DomainLayerUsers.SKSlackKey {
     return kmSlackKey {
         this.keybytesList.addAll(this@toSKUserPublicKey.map {
             kmSKByteArrayElement {
@@ -91,12 +91,12 @@ fun KMSKChannel.mapToDomainSkChannel(): DomainLayerChannels.SKChannel {
     )
 }
 
-fun KMSlackKey.toUserPublicKey(): DomainLayerUsers.SKUserPublicKey {
-    return DomainLayerUsers.SKUserPublicKey(keyBytes = this.keybytesList.map { it.byte.toByte() }
+fun KMSlackKey.toUserPublicKey(): DomainLayerUsers.SKSlackKey {
+    return DomainLayerUsers.SKSlackKey(keyBytes = this.keybytesList.map { it.byte.toByte() }
         .toByteArray())
 }
 
-fun DomainLayerUsers.SKUserPublicKey.toSlackKey(): KMSlackKey {
+fun DomainLayerUsers.SKSlackKey.toSlackKey(): KMSlackKey {
     return kmSlackKey {
         this.keybytesList.addAll(keyBytes.map {
             kmSKByteArrayElement {

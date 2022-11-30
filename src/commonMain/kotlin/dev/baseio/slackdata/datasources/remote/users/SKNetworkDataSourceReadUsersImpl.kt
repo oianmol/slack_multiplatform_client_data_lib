@@ -1,7 +1,6 @@
 package dev.baseio.slackdata.datasources.remote.users
 
 import dev.baseio.grpc.IGrpcCalls
-import dev.baseio.slackdata.datasources.remote.messages.toDomainLayerMessage
 import dev.baseio.slackdata.protos.KMSKUser
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdomain.datasources.remote.users.SKNetworkDataSourceReadUsers
@@ -9,7 +8,6 @@ import dev.baseio.slackdomain.model.users.DomainLayerUsers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.withContext
 
 class SKNetworkDataSourceReadUsersImpl(
@@ -38,7 +36,7 @@ class SKNetworkDataSourceReadUsersImpl(
         this.userSince,
         this.phone,
         this.avatarUrl,
-        DomainLayerUsers.SKUserPublicKey(this.publicKey.keybytesList.map { it.byte.toByte() }.toByteArray())
+        DomainLayerUsers.SKSlackKey(this.publicKey.keybytesList.map { it.byte.toByte() }.toByteArray())
     )
 
     override fun listenToChangeInUsers(workspaceId: String): Flow<Pair<DomainLayerUsers.SKUser?, DomainLayerUsers.SKUser?>> {

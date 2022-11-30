@@ -2,43 +2,41 @@ package dev.baseio.slackdata.datasources.remote.channels
 
 import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.security.CapillaryInstances
-import dev.baseio.slackdata.ProtoExtensions.asByteArray
-import dev.baseio.slackdata.asEncryptedData
+import dev.baseio.security.EncryptedData
 import dev.baseio.slackdata.datasources.local.channels.skUser
-import dev.baseio.slackdata.toSKEncryptedMessage
-import dev.baseio.slackdomain.datasources.IDataDecryptor
+import dev.baseio.slackdata.protos.KMSKEncryptedMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelMembers
 import dev.baseio.slackdomain.datasources.local.users.SKLocalDataSourceUsers
 import dev.baseio.slackdomain.datasources.remote.channels.SKNetworkSourceChannel
 import dev.baseio.slackdomain.model.channel.DomainLayerChannels
+import dev.baseio.slackdomain.model.users.DomainLayerUsers
 
 class SKNetworkSourceChannelImpl(
     private val grpcCalls: IGrpcCalls,
     private val skLocalDataSourceUsers: SKLocalDataSourceUsers,
     private val skLocalDataSourceChannelMembers: SKLocalDataSourceChannelMembers,
     private val iDataEncrypter: IDataEncrypter,
-    private val skLocalKeyValueSource: SKLocalKeyValueSource,
-    private val iDataDecryptor: IDataDecryptor
+    private val skLocalKeyValueSource: SKLocalKeyValueSource
 ) : SKNetworkSourceChannel {
 
     private suspend fun inviteUserInternal(
         userName: String,
         channelId: String,
-        channelEncryptedPrivateKey: ByteArray
+        channelEncryptedPrivateKey: DomainLayerUsers.SKEncryptedMessage
     ): List<DomainLayerChannels.SkChannelMember> {
         return grpcCalls.inviteUserToChannel(
             userName,
             channelId,
-            channelEncryptedPrivateKey.toSKUserPublicKey()
+            channelEncryptedPrivateKey
         ).membersList.map { kmskChannelMember ->
             DomainLayerChannels.SkChannelMember(
                 kmskChannelMember.uuid,
                 kmskChannelMember.workspaceId,
                 kmskChannelMember.channelId,
                 kmskChannelMember.memberId,
-                channelEncryptedPrivateKey = kmskChannelMember.channelPrivateKey.toUserPublicKey()
+                channelEncryptedPrivateKey = kmskChannelMember.channelPrivateKey.toDomainSKEncryptedMessage()
             )
         }.also {
             skLocalDataSourceChannelMembers.save(it)
@@ -49,23 +47,35 @@ class SKNetworkSourceChannelImpl(
         channel: DomainLayerChannels.SKChannel,
         userName: String
     ): List<DomainLayerChannels.SkChannelMember> {
-        val channelEncryptedPrivateKeyForLoggedInUser = skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
-            channel.workspaceId,
-            channel.channelId,
-            skLocalKeyValueSource.skUser().uuid
-        )!!.channelEncryptedPrivateKey.keyBytes
+        val channelEncryptedPrivateKeyForLoggedInUser =
+            skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
+                channel.workspaceId,
+                channel.channelId,
+                skLocalKeyValueSource.skUser().uuid
+            )!!.channelEncryptedPrivateKey
         val capillary =
-            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().email!!)
+            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().uuid)
         val decryptedChannelPrivateKeyForLoggedInUser = capillary.decrypt(
-            channelEncryptedPrivateKeyForLoggedInUser.asEncryptedData(), capillary.privateKey()
+            EncryptedData(
+                channelEncryptedPrivateKeyForLoggedInUser.first,
+                channelEncryptedPrivateKeyForLoggedInUser.second
+            ), capillary.privateKey()
         )
         val channelPrivateKeyEncryptedForInvitedUser = iDataEncrypter.encrypt(
             decryptedChannelPrivateKeyForLoggedInUser,
-            skLocalDataSourceUsers.getUserByUserName(channel.workspaceId, userName)!!.publicKey!!.keyBytes
+            skLocalDataSourceUsers.getUserByUserName(
+                channel.workspaceId,
+                userName
+            )!!.publicKey!!.keyBytes
         ) // TODO fix this ask the backend if not available in local cache!
         return inviteUserInternal(
             userName, channel.channelId,
             channelPrivateKeyEncryptedForInvitedUser
         )
     }
+}
+
+fun KMSKEncryptedMessage.toDomainSKEncryptedMessage(): DomainLayerUsers.SKEncryptedMessage {
+    return DomainLayerUsers.SKEncryptedMessage(this.firstList.map { it.byte.toByte() }
+        .toByteArray(), this.secondList.map { it.byte.toByte() }.toByteArray())
 }

@@ -65,7 +65,10 @@ class GrpcCalls(
     }
 
     override suspend fun getUsersForWorkspaceId(workspace: String, token: String?): KMSKUsers {
-        return usersStub.getUsers(kmSKWorkspaceChannelRequest { workspaceId = workspace }, fetchToken(token))
+        return usersStub.getUsers(
+            kmSKWorkspaceChannelRequest { workspaceId = workspace },
+            fetchToken(token)
+        )
     }
 
     override suspend fun currentLoggedInUser(token: String?): KMSKUser {
@@ -191,16 +194,21 @@ class GrpcCalls(
     override suspend fun inviteUserToChannel(
         userId: String,
         channelId: String,
-        skUserPublicKey: DomainLayerUsers.SKUserPublicKey,
+        skSlackKey: DomainLayerUsers.SKEncryptedMessage,
         token: String?
     ): KMSKChannelMembers {
         return channelsStub.inviteUserToChannel(kmSKInviteUserChannel {
             this.channelId = channelId
             this.userId = userId
-            this.channelPrivateKey = kmSlackKey {
-                this.keybytesList.addAll(skUserPublicKey.keyBytes.map {
+            this.channelPrivateKey = kmSKEncryptedMessage {
+                this.firstList.addAll(skSlackKey.first.map {
                     kmSKByteArrayElement {
-                        byte = it.toInt()
+                        this.byte = it.toInt()
+                    }
+                })
+                this.secondList.addAll(skSlackKey.second.map {
+                    kmSKByteArrayElement {
+                        this.byte = it.toInt()
                     }
                 })
             }
@@ -257,14 +265,38 @@ class GrpcCalls(
 interface IGrpcCalls {
     val skKeyValueData: SKLocalKeyValueSource
 
-    suspend fun authorizeQrCode(code: KMSKQRAuthVerify, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKAuthResult
+    suspend fun authorizeQrCode(
+        code: KMSKQRAuthVerify,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKAuthResult
+
     fun getQrCodeResponse(token: String? = skKeyValueData.get(AUTH_TOKEN)): Flow<KMSKQrCodeResponse>
-    suspend fun getUsersForWorkspaceId(workspace: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUsers
+    suspend fun getUsersForWorkspaceId(
+        workspace: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKUsers
+
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
-    suspend fun forgotPassword(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
-    suspend fun resetPassword(kmskAuthUser: KMSKAuthUser, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
-    suspend fun findWorkspaceByName(name: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspace
-    suspend fun findWorkspacesForEmail(email: String, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces
+    suspend fun forgotPassword(
+        kmskAuthUser: KMSKAuthUser,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKUser
+
+    suspend fun resetPassword(
+        kmskAuthUser: KMSKAuthUser,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKUser
+
+    suspend fun findWorkspaceByName(
+        name: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKWorkspace
+
+    suspend fun findWorkspacesForEmail(
+        email: String,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKWorkspaces
+
     suspend fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces
     suspend fun saveWorkspace(
         workspace: KMSKCreateWorkspaceRequest,
@@ -285,8 +317,16 @@ interface IGrpcCalls {
         token: String? = skKeyValueData.get(AUTH_TOKEN)
     ): KMSKDMChannels
 
-    suspend fun savePublicChannel(kmChannel: KMSKChannel, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKChannel
-    suspend fun saveDMChannel(kmChannel: KMSKDMChannel, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKDMChannel
+    suspend fun savePublicChannel(
+        kmChannel: KMSKChannel,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKChannel
+
+    suspend fun saveDMChannel(
+        kmChannel: KMSKDMChannel,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKDMChannel
+
     fun listenToChangeInMessages(
         workspaceChannelRequest: UseCaseWorkspaceChannelRequest,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
@@ -315,12 +355,16 @@ interface IGrpcCalls {
     suspend fun inviteUserToChannel(
         userId: String,
         channelId: String,
-        skUserPublicKey: DomainLayerUsers.SKUserPublicKey,
+        skSlackKey: DomainLayerUsers.SKEncryptedMessage,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
     ): KMSKChannelMembers
 
     suspend fun fetchMessages(request: UseCaseWorkspaceChannelRequest): KMSKMessages
-    suspend fun sendMessage(kmskMessage: KMSKMessage, token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKMessage
+    suspend fun sendMessage(
+        kmskMessage: KMSKMessage,
+        token: String? = skKeyValueData.get(AUTH_TOKEN)
+    ): KMSKMessage
+
     fun listenToChangeInWorkspace(
         workspaceId: String,
         token: String? = skKeyValueData.get(AUTH_TOKEN)

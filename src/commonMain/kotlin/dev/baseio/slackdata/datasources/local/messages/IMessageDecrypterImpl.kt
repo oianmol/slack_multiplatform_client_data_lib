@@ -17,30 +17,18 @@ class IMessageDecrypterImpl(
     override suspend fun decrypted(message: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage? {
         val capillary =
             CapillaryInstances.getInstance(skKeyValueData.skUser().email!!)
-        val channelEncryptedPrivateKey = skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
+        return skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
             message.workspaceId,
             message.channelId,
             skKeyValueData.skUser().uuid
-        )?.channelEncryptedPrivateKey
-
-        var decryptedPrivateKeyBytes: ByteArray? = null
-        channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
-            kotlin.runCatching {
-                decryptedPrivateKeyBytes = capillary.decrypt(
-                    EncryptedData(
-                        safeChannelEncryptedPrivateKey.first,
-                        safeChannelEncryptedPrivateKey.second
-                    ), capillary.privateKey()
-                )
-            }.exceptionOrNull()?.let {
-                it.printStackTrace()
-                return message.copy(
-                    decodedMessage = it.message.toString()
-                )
-            }
-        }
-
-        return decryptedPrivateKeyBytes?.let { bytes ->
+        )?.channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
+            capillary.decrypt(
+                EncryptedData(
+                    safeChannelEncryptedPrivateKey.first,
+                    safeChannelEncryptedPrivateKey.second
+                ), capillary.privateKey()
+            )
+        }?.let { bytes ->
             finalMessageAfterDecryption(
                 message,
                 bytes

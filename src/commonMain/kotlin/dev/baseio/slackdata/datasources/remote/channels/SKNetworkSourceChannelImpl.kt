@@ -54,7 +54,7 @@ class SKNetworkSourceChannelImpl(
                 skLocalKeyValueSource.skUser().uuid
             )!!.channelEncryptedPrivateKey
         val capillary =
-            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().uuid)
+            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().email!!)
         val decryptedChannelPrivateKeyForLoggedInUser = capillary.decrypt(
             EncryptedData(
                 channelEncryptedPrivateKeyForLoggedInUser.first,

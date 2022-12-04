@@ -165,7 +165,7 @@ grpcKotlinMultiplatform {
 }
 
 dependencies {
-    commonMainApi("dev.baseio.slackcrypto:capillary-kmp:1.0")
+    commonMainApi(project(":encryptionlib"))
 }
 
 kotlin {

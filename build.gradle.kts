@@ -198,4 +198,3 @@ android {
     }
 }
 
-tasks.replace("podGenIOS", PatchedPodGenTask::class)

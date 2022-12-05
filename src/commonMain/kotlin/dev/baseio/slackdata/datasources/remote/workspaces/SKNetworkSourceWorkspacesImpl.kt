@@ -8,33 +8,39 @@ import dev.baseio.slackdata.protos.kmSKCreateWorkspaceRequest
 import dev.baseio.slackdata.protos.kmSKUser
 import dev.baseio.slackdata.protos.kmSKWorkspace
 import dev.baseio.slackdata.protos.kmSlackKey
+import dev.baseio.slackdomain.CoroutineDispatcherProvider
 import dev.baseio.slackdomain.datasources.remote.workspaces.SKNetworkSourceWorkspaces
 import dev.baseio.slackdomain.model.users.DomainLayerUsers
+import kotlinx.coroutines.withContext
 
 class SKNetworkSourceWorkspacesImpl(
     private val grpcCalls: IGrpcCalls,
+    private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKNetworkSourceWorkspaces {
     override suspend fun saveWorkspace(
         email: String,
         password: String,
         domain: String
     ): DomainLayerUsers.SKAuthResult {
-        val publicKey = CapillaryInstances.getInstance(email).publicKey()
-        return kotlin.run {
-            val result = grpcCalls.saveWorkspace(
-                kmskCreateWorkspaceRequest(
-                    email,
-                    password,
-                    domain,
-                    publicKey.encoded
+        return withContext(coroutineDispatcherProvider.io) {
+            val publicKey = CapillaryInstances.getInstance(email).publicKey()
+            kotlin.run {
+                val result = grpcCalls.saveWorkspace(
+                    kmskCreateWorkspaceRequest(
+                        email,
+                        password,
+                        domain,
+                        publicKey.encoded
+                    )
                 )
-            )
-            DomainLayerUsers.SKAuthResult(
-                result.token,
-                result.refreshToken,
-                DomainLayerUsers.SKStatus(result.status.information, result.status.statusCode)
-            )
+                DomainLayerUsers.SKAuthResult(
+                    result.token,
+                    result.refreshToken,
+                    DomainLayerUsers.SKStatus(result.status.information, result.status.statusCode)
+                )
+            }
         }
+
     }
 }
 

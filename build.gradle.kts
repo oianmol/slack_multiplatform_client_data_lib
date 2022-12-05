@@ -63,7 +63,7 @@ kotlin {
                 implementation(Deps.Kotlinx.datetime)
                 implementation(Deps.SqlDelight.runtime)
                 implementation(Lib.Async.COROUTINES)
-                implementation((Lib.Project.SLACK_DOMAIN_COMMON))
+                implementation(project(Lib.Project.SLACK_DOMAIN_COMMON))
                 implementation(kotlin("stdlib-common"))
                 api("io.github.timortel:grpc-multiplatform-lib:0.2.2")
             }
@@ -165,7 +165,7 @@ grpcKotlinMultiplatform {
 }
 
 dependencies {
-    commonMainApi(Lib.Project.CAPILLARY_KMP)
+    commonMainApi(project(Lib.Project.CAPILLARY_KMP))
 }
 
 kotlin {

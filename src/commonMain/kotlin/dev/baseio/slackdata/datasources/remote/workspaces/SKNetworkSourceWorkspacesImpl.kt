@@ -17,18 +17,16 @@ class SKNetworkSourceWorkspacesImpl(
     private val grpcCalls: IGrpcCalls,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKNetworkSourceWorkspaces {
-    override suspend fun saveWorkspace(
+    override suspend fun sendMagicLink(
         email: String,
-        password: String,
         domain: String
     ): DomainLayerUsers.SKAuthResult {
         return withContext(coroutineDispatcherProvider.io) {
             val publicKey = CapillaryInstances.getInstance(email).publicKey()
             kotlin.run {
-                val result = grpcCalls.saveWorkspace(
+                val result = grpcCalls.sendMagicLink(
                     kmskCreateWorkspaceRequest(
                         email,
-                        password,
                         domain,
                         publicKey.encoded
                     )
@@ -46,13 +44,11 @@ class SKNetworkSourceWorkspacesImpl(
 
 private fun kmskCreateWorkspaceRequest(
     email: String,
-    password: String,
     domain: String,
     publicKey: ByteArray
 ) = kmSKCreateWorkspaceRequest {
     this.user = kmSKAuthUser {
         this.email = email
-        this.password = password
         this.user = kmSKUser {
             this.email = email
             this.publicKey = kmSlackKey {

@@ -2,7 +2,6 @@ package dev.baseio.grpc
 
 import dev.baseio.slackdata.common.KMEmpty
 import dev.baseio.slackdata.common.kmEmpty
-import dev.baseio.slackdata.common.kmSKByteArrayElement
 import dev.baseio.slackdata.protos.*
 import dev.baseio.slackdomain.AUTH_TOKEN
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
@@ -75,15 +74,6 @@ class GrpcCalls(
         return usersStub.currentLoggedInUser(kmEmpty { }, fetchToken(token))
     }
 
-
-    override suspend fun forgotPassword(kmskAuthUser: KMSKAuthUser, token: String?): KMSKUser {
-        return authStub.forgotPassword(kmskAuthUser, fetchToken(token))
-    }
-
-    override suspend fun resetPassword(kmskAuthUser: KMSKAuthUser, token: String?): KMSKUser {
-        return authStub.resetPassword(kmskAuthUser, fetchToken(token))
-    }
-
     override suspend fun findWorkspaceByName(name: String, token: String?): KMSKWorkspace {
         return workspacesStub.findWorkspaceForName(kmSKFindWorkspacesRequest {
             this.name = name
@@ -100,7 +90,7 @@ class GrpcCalls(
         return workspacesStub.getWorkspaces(kmEmpty { }, fetchToken(token))
     }
 
-    override suspend fun saveWorkspace(
+    override suspend fun sendMagicLink(
         workspace: KMSKCreateWorkspaceRequest,
         token: String?
     ): KMSKAuthResult {
@@ -269,15 +259,6 @@ interface IGrpcCalls {
     ): KMSKUsers
 
     suspend fun currentLoggedInUser(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKUser
-    suspend fun forgotPassword(
-        kmskAuthUser: KMSKAuthUser,
-        token: String? = skKeyValueData.get(AUTH_TOKEN)
-    ): KMSKUser
-
-    suspend fun resetPassword(
-        kmskAuthUser: KMSKAuthUser,
-        token: String? = skKeyValueData.get(AUTH_TOKEN)
-    ): KMSKUser
 
     suspend fun findWorkspaceByName(
         name: String,
@@ -290,7 +271,7 @@ interface IGrpcCalls {
     ): KMSKWorkspaces
 
     suspend fun getWorkspaces(token: String? = skKeyValueData.get(AUTH_TOKEN)): KMSKWorkspaces
-    suspend fun saveWorkspace(
+    suspend fun sendMagicLink(
         workspace: KMSKCreateWorkspaceRequest,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
     ): KMSKAuthResult

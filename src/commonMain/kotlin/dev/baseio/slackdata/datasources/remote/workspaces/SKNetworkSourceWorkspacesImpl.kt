@@ -20,7 +20,7 @@ class SKNetworkSourceWorkspacesImpl(
     override suspend fun sendMagicLink(
         email: String,
         domain: String
-    ): DomainLayerUsers.SKAuthResult {
+    ) {
         return withContext(coroutineDispatcherProvider.io) {
             val publicKey = CapillaryInstances.getInstance(email).publicKey()
             kotlin.run {
@@ -30,11 +30,6 @@ class SKNetworkSourceWorkspacesImpl(
                         domain,
                         publicKey.encoded
                     )
-                )
-                DomainLayerUsers.SKAuthResult(
-                    result.token,
-                    result.refreshToken,
-                    DomainLayerUsers.SKStatus(result.status.information, result.status.statusCode)
                 )
             }
         }

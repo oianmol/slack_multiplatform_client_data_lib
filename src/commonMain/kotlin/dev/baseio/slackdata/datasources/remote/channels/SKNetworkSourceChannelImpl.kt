@@ -3,7 +3,7 @@ package dev.baseio.slackdata.datasources.remote.channels
 import dev.baseio.grpc.IGrpcCalls
 import dev.baseio.security.CapillaryInstances
 import dev.baseio.security.EncryptedData
-import dev.baseio.slackdata.datasources.local.channels.skUser
+import dev.baseio.slackdata.datasources.local.channels.loggedInUser
 import dev.baseio.slackdata.protos.KMSKEncryptedMessage
 import dev.baseio.slackdomain.datasources.IDataEncrypter
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
@@ -51,10 +51,10 @@ class SKNetworkSourceChannelImpl(
             skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
                 channel.workspaceId,
                 channel.channelId,
-                skLocalKeyValueSource.skUser().uuid
+                skLocalKeyValueSource.loggedInUser(channel.workspaceId).uuid
             )!!.channelEncryptedPrivateKey
         val capillary =
-            CapillaryInstances.getInstance(skLocalKeyValueSource.skUser().email!!)
+            CapillaryInstances.getInstance(skLocalKeyValueSource.loggedInUser(channel.workspaceId).email!!)
         val decryptedChannelPrivateKeyForLoggedInUser = capillary.decrypt(
             EncryptedData(
                 channelEncryptedPrivateKeyForLoggedInUser.first,

@@ -7,7 +7,9 @@ import dev.baseio.slackdata.local.mapToList
 import dev.baseio.slackdata.local.mapToOneNotNull
 import dev.baseio.slackdata.local.mapToOneOrNull
 import dev.baseio.slackdata.mapper.EntityMapper
+import dev.baseio.slackdomain.AUTH_TOKEN
 import dev.baseio.slackdomain.CoroutineDispatcherProvider
+import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.datasources.local.workspaces.SKLocalDataSourceReadWorkspaces
 import dev.baseio.slackdomain.model.workspaces.DomainLayerWorkspaces
 import kotlinx.coroutines.flow.*
@@ -16,12 +18,14 @@ import kotlinx.datetime.Clock
 
 class SKLocalDataSourceReadWorkspacesImpl(
     private val slackDB: SlackDB,
+    private val skLocalKeyValueSource:SKLocalKeyValueSource,
     private val entityMapper: EntityMapper<DomainLayerWorkspaces.SKWorkspace, SlackWorkspaces>,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider
 ) : SKLocalDataSourceReadWorkspaces {
 
     override suspend fun setLastSelected(skWorkspace: DomainLayerWorkspaces.SKWorkspace) {
         withContext(coroutineDispatcherProvider.io) {
+            skLocalKeyValueSource.save(AUTH_TOKEN, skWorkspace.token)
             slackDB.slackDBQueries.workspaceUpdateTime(Clock.System.now().toEpochMilliseconds(), skWorkspace.uuid)
         }
     }

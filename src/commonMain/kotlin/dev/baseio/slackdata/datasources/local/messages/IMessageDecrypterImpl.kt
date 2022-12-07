@@ -3,8 +3,7 @@ package dev.baseio.slackdata.datasources.local.messages
 import dev.baseio.security.*
 import dev.baseio.slackdomain.datasources.local.messages.IMessageDecrypter
 import dev.baseio.slackdomain.model.message.DomainLayerMessages
-import dev.baseio.slackdata.datasources.local.channels.skUser
-import dev.baseio.slackdata.datasources.remote.channels.toDomainSKEncryptedMessage
+import dev.baseio.slackdata.datasources.local.channels.loggedInUser
 import dev.baseio.slackdomain.datasources.IDataDecryptor
 import dev.baseio.slackdomain.datasources.local.SKLocalKeyValueSource
 import dev.baseio.slackdomain.datasources.local.channels.SKLocalDataSourceChannelMembers
@@ -16,11 +15,11 @@ class IMessageDecrypterImpl(
 ) : IMessageDecrypter {
     override suspend fun decrypted(message: DomainLayerMessages.SKMessage): DomainLayerMessages.SKMessage? {
         val capillary =
-            CapillaryInstances.getInstance(skKeyValueData.skUser().email!!)
+            CapillaryInstances.getInstance(skKeyValueData.loggedInUser(message.workspaceId).email!!)
         return skLocalDataSourceChannelMembers.getChannelPrivateKeyForMe(
             message.workspaceId,
             message.channelId,
-            skKeyValueData.skUser().uuid
+            skKeyValueData.loggedInUser(message.workspaceId).uuid
         )?.channelEncryptedPrivateKey?.let { safeChannelEncryptedPrivateKey ->
             capillary.decrypt(
                 EncryptedData(

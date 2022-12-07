@@ -108,7 +108,7 @@ class SKLocalDataSourceReadChannelsImpl(
                     }
             }.run {
                 if (this is DomainLayerChannels.SKChannel.SkDMChannel) {
-                    this.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
+                    this.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers,this.workspaceId)
                 }
                 this
             }
@@ -146,7 +146,11 @@ class SKLocalDataSourceReadChannelsImpl(
             }.map { skChannelList ->
                 skChannelList.map { skChannel ->
                     if (skChannel is DomainLayerChannels.SKChannel.SkDMChannel) {
-                        skChannel.populateDMChannelWithOtherUser(skKeyValueData, skLocalDataSourceUsers)
+                        skChannel.populateDMChannelWithOtherUser(
+                            skKeyValueData,
+                            skLocalDataSourceUsers,
+                            workspaceId
+                        )
                     }
                     skChannel
                 }
@@ -161,17 +165,18 @@ class SKLocalDataSourceReadChannelsImpl(
 
 fun DomainLayerChannels.SKChannel.SkDMChannel.populateDMChannelWithOtherUser(
     skKeyValueData: SKLocalKeyValueSource,
-    skLocalDataSourceUsers: SKLocalDataSourceUsers
+    skLocalDataSourceUsers: SKLocalDataSourceUsers,
+    workspaceId: String
 ) {
-    val loggedInUser = skKeyValueData.skUser()
+    val loggedInUser = skKeyValueData.loggedInUser(workspaceId)
     val otherUserId = loggedInUser.otherUserInDMChannel(this)
     val user = skLocalDataSourceUsers.getUser(this.workspaceId, otherUserId)
-    user?.let {
-        this.channelName = it.name
-        this.pictureUrl = it.avatarUrl
+    user?.let { skUser ->
+        this.channelName = skUser.name
+        this.pictureUrl = skUser.avatarUrl
     }
 }
 
-fun SKLocalKeyValueSource.skUser(): DomainLayerUsers.SKUser {
-    return Json.decodeFromString(this.get(LOGGED_IN_USER)!!)
+fun SKLocalKeyValueSource.loggedInUser(workspaceId: String): DomainLayerUsers.SKUser {
+    return Json.decodeFromString(this.get(LOGGED_IN_USER.plus(workspaceId))!!)
 }

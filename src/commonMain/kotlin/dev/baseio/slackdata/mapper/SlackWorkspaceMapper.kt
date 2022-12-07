@@ -10,11 +10,11 @@ class SlackWorkspaceMapper : EntityMapper<DomainLayerWorkspaces.SKWorkspace, Sla
             entity.name,
             entity.domain,
             entity.picUrl,
-            entity.modifiedTime ?: 0L
+            entity.modifiedTime ?: 0L,entity.token
         )
     }
 
     override fun mapToData(model: DomainLayerWorkspaces.SKWorkspace): SlackWorkspaces {
-        return SlackWorkspaces(model.uuid, model.name, model.domain, model.picUrl, model.modifiedTime)
+        return SlackWorkspaces(model.uuid, model.name, model.domain, model.picUrl, model.modifiedTime,model.token)
     }
 }

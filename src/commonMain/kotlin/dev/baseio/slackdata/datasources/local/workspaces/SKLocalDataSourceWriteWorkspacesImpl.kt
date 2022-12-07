@@ -19,7 +19,8 @@ class SKLocalDataSourceWriteWorkspacesImpl(
             skWorkspace.name,
             skWorkspace.domain,
             skWorkspace.picUrl,
-            skWorkspace.modifiedTime
+            skWorkspace.modifiedTime,
+            skWorkspace.token!!
           )
         }
       }

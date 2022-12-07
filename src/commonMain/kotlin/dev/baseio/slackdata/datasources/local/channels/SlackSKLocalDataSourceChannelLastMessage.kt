@@ -49,7 +49,8 @@ class SlackSKLocalDataSourceChannelLastMessage(
                     val domainChannel = dmChannelMapper.mapToDomain(skDMChannel)
                     (domainChannel as DomainLayerChannels.SKChannel.SkDMChannel).populateDMChannelWithOtherUser(
                         skKeyValueData,
-                        skLocalDataSourceUsers
+                        skLocalDataSourceUsers,
+                        workspaceId
                     )
                     return@mapNotNull DomainLayerMessages.SKLastMessage(
                         domainChannel,

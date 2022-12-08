@@ -93,7 +93,7 @@ class GrpcCalls(
     override suspend fun sendMagicLink(
         workspace: KMSKCreateWorkspaceRequest,
         token: String?
-    ): KMEmpty {
+    ): KMSKWorkspace {
         return workspacesStub.letMeIn(workspace, fetchToken(token))
     }
 
@@ -274,7 +274,7 @@ interface IGrpcCalls {
     suspend fun sendMagicLink(
         workspace: KMSKCreateWorkspaceRequest,
         token: String? = skKeyValueData.get(AUTH_TOKEN)
-    ): KMEmpty
+    ): KMSKWorkspace
 
     suspend fun getPublicChannels(
         workspaceIdentifier: String,

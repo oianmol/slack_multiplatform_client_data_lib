@@ -16,11 +16,12 @@ class SKLocalDataSourceWriteWorkspacesImpl(
         list.map { skWorkspace ->
           slackDB.slackDBQueries.insertWorkspace(
             skWorkspace.uuid,
+            skWorkspace.uuid + skWorkspace.token,
             skWorkspace.name,
             skWorkspace.domain,
             skWorkspace.picUrl,
             skWorkspace.modifiedTime,
-            skWorkspace.token!!
+            skWorkspace.token
           )
         }
       }

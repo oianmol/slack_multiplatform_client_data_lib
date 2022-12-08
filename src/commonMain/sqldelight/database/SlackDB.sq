@@ -1,8 +1,10 @@
-CREATE TABLE IF NOT EXISTS slackWorkspaces(uid TEXT NOT NULL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS slackWorkspaces(uid TEXT NOT NULL,
+                                        uidToken TEXT NOT NULL PRIMARY KEY ,
                                                name TEXT NOT NULL ,
                                                domain TEXT NOT NULL,
                                                picUrl TEXT DEFAULT NULL,
-                                               modifiedTime INTEGER DEFAULT 0,token TEXT NOT NULL);
+                                               modifiedTime INTEGER DEFAULT 0,
+                                               token TEXT NOT NULL);
 lastSelected:
 SELECT * FROM slackWorkspaces WHERE modifiedTime =  ( SELECT MAX(modifiedTime) FROM slackWorkspaces );
 
@@ -10,7 +12,7 @@ workspaceUpdateTime:
 UPDATE slackWorkspaces SET modifiedTime=:time WHERE uid=:workspaceId;
 
 insertWorkspace:
-INSERT OR REPLACE INTO slackWorkspaces(uid,name,domain,picUrl,modifiedTime,token) VALUES (?,?,?,?,?,?);
+INSERT OR REPLACE INTO slackWorkspaces(uid,uidToken,name,domain,picUrl,modifiedTime,token) VALUES (?,?,?,?,?,?,?);
 
 countWorkspaces:
 SELECT COUNT(*) FROM slackWorkspaces;

@@ -165,7 +165,7 @@ grpcKotlinMultiplatform {
 }
 
 dependencies {
-    commonMainApi(project(Lib.Project.CAPILLARY_KMP))
+    commonMainApi(Lib.Project.CAPILLARY_KMP)
 }
 
 kotlin {

@@ -1,17 +1,17 @@
 import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExtension.OutputTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
-
 
 plugins {
-    kotlin("multiplatform")
-    kotlin(BuildPlugins.SERIALIZATION) version Lib.Kotlin.KOTLIN_VERSION
-    id("com.android.library")
-    kotlin("native.cocoapods")
-    id("com.google.protobuf") version "0.8.19"
-    id("com.squareup.sqldelight")
     id("maven-publish")
-    id("com.rickclephas.kmp.nativecoroutines")
-    id("io.github.timortel.kotlin-multiplatform-grpc-plugin") version "0.2.2"
+    alias(libs.plugins.kotlin.native.cocoapods)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.rick.nativecoroutines)
+    alias(libs.plugins.sqldelight.id)
+    alias(libs.plugins.google.protobuf)
+    alias(libs.plugins.timortel.grpc)
+
 }
 
 group = "dev.baseio.slackclone"

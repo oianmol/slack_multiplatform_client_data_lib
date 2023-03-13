@@ -2,8 +2,8 @@ import io.github.timortel.kotlin_multiplatform_grpc_plugin.GrpcMultiplatformExte
 
 plugins {
     id("maven-publish")
-    alias(libs.plugins.kotlin.native.cocoapods)
-    alias(libs.plugins.kotlin.multiplatform)
+    id(libs.plugins.kotlin.native.cocoapods.get().pluginId)
+    id(libs.plugins.kotlin.multiplatform.get().pluginId)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
@@ -60,10 +60,10 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("com.squareup.sqldelight:runtime:1.5.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
-                implementation(Deps.Kotlinx.datetime)
-                implementation(Deps.SqlDelight.runtime)
-                implementation(Lib.Async.COROUTINES)
-                implementation(project(Lib.Project.SLACK_DOMAIN_COMMON))
+                implementation(libs.datetime)
+                implementation(libs.sqldelight.runtime)
+                implementation(libs.coroutines)
+                implementation(project(":common"))
                 implementation(kotlin("stdlib-common"))
                 api("io.github.timortel:grpc-multiplatform-lib:0.2.2")
             }
@@ -87,8 +87,8 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Deps.SqlDelight.androidDriver)
-                implementation("androidx.security:security-crypto-ktx:1.1.0-alpha04")
+                implementation(libs.sqldelight.androiddriver)
+                implementation("androidx.security:security-crypto-ktx:1.1.0-alpha05")
                 api(project(":slack_generate_protos"))
                 implementation("io.ktor:ktor-client-android:$ktor_version")
             }
@@ -96,19 +96,19 @@ kotlin {
         val iosArm64Main by getting {
             dependsOn(sqlDriverNativeMain)
             dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesArm64)
+                implementation(libs.coroutinesarm64)
             }
         }
         val iosSimulatorArm64Main by getting {
             dependsOn(sqlDriverNativeMain)
             dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesiossimulatorarm64)
+                implementation(libs.coroutinesiossimulatorarm64)
             }
         }
         val iosX64Main by getting {
             dependsOn(sqlDriverNativeMain)
             dependencies {
-                implementation(Deps.Kotlinx.IOS.coroutinesX64)
+                implementation(libs.coroutinesx64)
             }
         }
 
@@ -137,8 +137,8 @@ kotlin {
                 projectDir.resolve("build/generated/source/kmp-grpc/jvmMain/kotlin").canonicalPath,
             )
             dependencies {
-                implementation(Deps.Kotlinx.JVM.coroutinesSwing)
-                implementation(Deps.SqlDelight.jvmDriver)
+                implementation(libs.coroutines.swing)
+                implementation(libs.sqldelight.jvmdriver)
                 api(project(":slack_generate_protos"))
                 implementation("io.ktor:ktor-client-java:$ktor_version")
             }
@@ -165,7 +165,7 @@ grpcKotlinMultiplatform {
 }
 
 dependencies {
-    commonMainApi(Lib.Project.CAPILLARY_KMP)
+    commonMainApi(project(":capillary-kmp"))
 }
 
 kotlin {
